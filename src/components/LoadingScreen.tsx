@@ -304,6 +304,19 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
   };
 
   createNewWallet = () => {
+    // FIXME
+    /*const { url } = this.state;
+    const result = native.litelib_initialize_new(url);
+
+    if (result.startsWith("Error")) {
+      this.setState({ newWalletError: result });
+    } else {
+      const r = JSON.parse(result);
+      this.setState({ walletScreen: 2, seed: r.seed });
+    }*/
+  };
+
+  connectToHardwareWallet = () => {
     const { url } = this.state;
     const result = native.litelib_initialize_new(url);
 
@@ -413,6 +426,17 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                   <div className={cstyles.margintoplarge}>
                     <button type="button" className={cstyles.primarybutton} onClick={this.createNewWallet}>
                       Create New
+                    </button>
+                  </div>
+                </div>
+                <div className={[cstyles.verticalflex, cstyles.margintoplarge].join(" ")}>
+                  <div className={[cstyles.large, cstyles.highlight].join(" ")}>Connect to Ledger</div>
+                  <div className={cstyles.padtopsmall}>
+                    Connect to a Ledger wallet to use your seed from it.
+                  </div>
+                  <div className={cstyles.margintoplarge}>
+                    <button type="button" className={cstyles.primarybutton} onClick={this.connectToHardwareWallet}>
+                      Connect
                     </button>
                   </div>
                 </div>
