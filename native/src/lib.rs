@@ -29,6 +29,7 @@ register_module!(mut m, {
     //m.export_function("litelib_say_hello", litelib_say_hello)?;
     m.export_function("litelib_wallet_exists", litelib_wallet_exists)?;
     m.export_function("litelib_initialize_new", litelib_initialize_new)?;
+    m.export_function("litelib_initialize_ledger", litelib_initialize_ledger)?;
     m.export_function("litelib_initialize_existing", litelib_initialize_existing)?;
     m.export_function(
         "litelib_initialize_new_from_phrase",
@@ -45,6 +46,11 @@ fn litelib_wallet_exists(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let config = LightClientConfig::create_unconnected(MainNetwork, None);
 
     Ok(cx.boolean(config.wallet_exists()))
+}
+
+/// Connect to ledger hardware wallet.
+fn litelib_initialize_ledger(mut cx: FunctionContext) -> JsResult<JsString> {
+  Ok(cx.string(format!("Error: Not implemented yet")))
 }
 
 /// Create a new wallet and return the seed for the newly created wallet.

@@ -303,20 +303,18 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     }, 1000);
   };
 
-  createNewWallet = () => {
-    // FIXME
-    /*const { url } = this.state;
-    const result = native.litelib_initialize_new(url);
+  connectToHardwareWallet = () => {
+    const { url } = this.state;
+    const result = native.litelib_initialize_ledger(url);
 
     if (result.startsWith("Error")) {
       this.setState({ newWalletError: result });
     } else {
-      const r = JSON.parse(result);
-      this.setState({ walletScreen: 2, seed: r.seed });
-    }*/
+      this.setState({ walletScreen: 2, seed: "" });
+    }
   };
 
-  connectToHardwareWallet = () => {
+  createNewWallet = () => {
     const { url } = this.state;
     const result = native.litelib_initialize_new(url);
 
