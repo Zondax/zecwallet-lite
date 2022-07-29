@@ -9,7 +9,6 @@ use neon::prelude::JsResult;
 use neon::prelude::JsString;
 use neon::register_module;
 use zecwalletlitelib::lightclient::lightclient_config::LightClientConfig;
-use zecwalletlitelib::MainNetwork;
 
 use std::cell::RefCell;
 use std::sync::{Arc, Mutex};
@@ -21,7 +20,7 @@ use zecwalletlitelib::{commands, lightclient::LightClient};
 // so we don't have to keep creating it. We need to store it here, in rust
 // because we can't return such a complex structure back to JS
 lazy_static! {
-    static ref LIGHTCLIENT: Mutex<RefCell<Option<Arc<LightClient<MainNetwork>>>>> =
+    static ref LIGHTCLIENT: Mutex<RefCell<Option<Arc<LightClient>>>> =
         Mutex::new(RefCell::new(None));
 }
 
@@ -43,14 +42,45 @@ register_module!(mut m, {
 // Check if there is an existing wallet
 fn litelib_wallet_exists(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let _chain_name = cx.argument::<JsString>(0)?.value(&mut cx);
-    let config = LightClientConfig::create_unconnected(MainNetwork, None);
+    let config = LightClientConfig::create_unconnected(String::from("main"), None);
 
     Ok(cx.boolean(config.wallet_exists()))
 }
 
 /// Connect to ledger hardware wallet.
 fn litelib_initialize_ledger(mut cx: FunctionContext) -> JsResult<JsString> {
-  Ok(cx.string(format!("Error: Not implemented yet")))
+    let server_uri = cx.argument::<JsString>(0)?.value(&mut cx);
+
+    let resp = || {
+        let server = LightClientConfig::get_server_or_default(Some(server_uri));
+        let (config, latest_block_height) = match LightClientConfig::create(server) {
+            Ok((c, h)) => (c, h),
+            Err(e) => {
+                return format!("Error: {}", e);
+            }
+        };
+
+        let lightclient =
+            match LightClient::with_ledger(&config, latest_block_height.saturating_sub(100)) {
+                Ok(l) => l,
+                Err(e) => {
+                    return format!("Error: {}", e);
+                }
+            };
+
+        // Initialize logging
+        let _ = lightclient.init_logging();
+
+        let lc = Arc::new(lightclient);
+        LightClient::start_mempool_monitor(lc.clone());
+
+        LIGHTCLIENT.lock().unwrap().replace(Some(lc));
+
+        // Return the wallet's seed
+        "OK".to_string()
+    };
+
+    Ok(cx.string(resp()))
 }
 
 /// Create a new wallet and return the seed for the newly created wallet.
@@ -58,8 +88,8 @@ fn litelib_initialize_new(mut cx: FunctionContext) -> JsResult<JsString> {
     let server_uri = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let resp = || {
-        let server = LightClientConfig::<MainNetwork>::get_server_or_default(Some(server_uri));
-        let (config, latest_block_height) = match LightClientConfig::create(MainNetwork, server) {
+        let server = LightClientConfig::get_server_or_default(Some(server_uri));
+        let (config, latest_block_height) = match LightClientConfig::create(server) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -103,8 +133,8 @@ fn litelib_initialize_new_from_phrase(mut cx: FunctionContext) -> JsResult<JsStr
     let overwrite = cx.argument::<JsBoolean>(3)?.value(&mut cx);
 
     let resp = || {
-        let server = LightClientConfig::<MainNetwork>::get_server_or_default(Some(server_uri));
-        let (config, _latest_block_height) = match LightClientConfig::create(MainNetwork, server) {
+        let server = LightClientConfig::get_server_or_default(Some(server_uri));
+        let (config, _latest_block_height) = match LightClientConfig::create(server) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -138,8 +168,8 @@ fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsString> {
     let server_uri = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let resp = || {
-        let server = LightClientConfig::<MainNetwork>::get_server_or_default(Some(server_uri));
-        let (config, _latest_block_height) = match LightClientConfig::create(MainNetwork, server) {
+        let server = LightClientConfig::get_server_or_default(Some(server_uri));
+        let (config, _latest_block_height) = match LightClientConfig::create(server) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -178,7 +208,7 @@ fn litelib_execute(mut cx: FunctionContext) -> JsResult<JsString> {
     let args_list = cx.argument::<JsString>(1)?.value(&mut cx);
 
     let resp = || {
-        let lightclient: Arc<LightClient<MainNetwork>>;
+        let lightclient: Arc<LightClient>;
         {
             let lc = LIGHTCLIENT.lock().unwrap();
 
