@@ -495,8 +495,12 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                             : "Your seed is SAFE and never left your device. We just interacted with your device to check everything is ready."
                         }
                       </div>
-                      <hr />
-                      <div className={cstyles.padtopsmall}>{seed}</div>
+                      {walletType === "Local" &&
+                        <div>
+                          <hr />
+                          <div className={cstyles.padtopsmall}>{seed}</div>
+                        </div>
+                      }
                       <hr />
                       <div className={cstyles.margintoplarge}>
                         <button type="button" className={cstyles.primarybutton} onClick={this.startNewWallet}>
