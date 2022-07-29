@@ -12,7 +12,7 @@ import RPC from "../rpc";
 import cstyles from "./Common.module.css";
 import styles from "./LoadingScreen.module.css";
 import Logo from "../assets/img/logobig.png";
-import Utils from "../utils/utils";
+import Utils, {WalletType} from "../utils/utils";
 
 const { ipcRenderer } = window.require("electron");
 const fs = window.require("fs");
@@ -58,8 +58,11 @@ type Props = {
   prevSyncId: number;
   setRescanning: (rescan: boolean, prevSyncId: number) => void;
   setInfo: (info: Info) => void;
+  setWalletType: (type: WalletType) => void;
   openServerSelectModal: () => void;
+  walletType: WalletType
 };
+
 class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreenState> {
   constructor(props: Props & RouteComponentProps) {
     super(props);
@@ -303,14 +306,15 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     }, 1000);
   };
 
-  connectToHardwareWallet = () => {
+  connectToHDWallet = () => {
     const { url } = this.state;
     const result = native.litelib_initialize_ledger(url);
 
+    this.props.setWalletType("Ledger");
+    this.setState({  newWalletError: null, walletScreen: 2})
+
     if (result.startsWith("Error")) {
       this.setState({ newWalletError: result });
-    } else {
-      this.setState({ walletScreen: 2, seed: "" });
     }
   };
 
@@ -318,11 +322,14 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     const { url } = this.state;
     const result = native.litelib_initialize_new(url);
 
+    this.props.setWalletType("Local");
+    this.setState({  newWalletError: null, walletScreen: 2})
+
     if (result.startsWith("Error")) {
       this.setState({ newWalletError: result });
     } else {
       const r = JSON.parse(result);
-      this.setState({ walletScreen: 2, seed: r.seed });
+      this.setState({ seed: r.seed });
     }
   };
 
@@ -373,7 +380,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     const { loadingDone, currentStatus, currentStatusIsError, walletScreen, newWalletError, seed, birthday } =
       this.state;
 
-    const { openServerSelectModal } = this.props;
+    const { openServerSelectModal, walletType } = this.props;
 
     // If still loading, show the status
     if (!loadingDone) {
@@ -433,7 +440,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                     Connect to a Ledger wallet to use your seed from it.
                   </div>
                   <div className={cstyles.margintoplarge}>
-                    <button type="button" className={cstyles.primarybutton} onClick={this.connectToHardwareWallet}>
+                    <button type="button" className={cstyles.primarybutton} onClick={this.connectToHDWallet}>
                       Connect
                     </button>
                   </div>
@@ -463,11 +470,17 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                 <div className={cstyles.verticalflex}>
                   {newWalletError && (
                     <div>
-                      <div className={[cstyles.large, cstyles.highlight].join(" ")}>Error Creating New Wallet</div>
-                      <div className={cstyles.padtopsmall}>There was an error creating a new wallet</div>
+                      <div className={[cstyles.large, cstyles.highlight].join(" ")}>{"Error Creating New Wallet"}</div>
+                      <div className={cstyles.padtopsmall}>{walletType === "Local" ? "There was an error creating a new wallet" : "There was an error communicating to device"}</div>
                       <hr />
                       <div className={cstyles.padtopsmall}>{newWalletError}</div>
                       <hr />
+                      <div className={cstyles.margintoplarge}>
+                        <button type="button" className={cstyles.primarybutton} onClick={() => {
+                          this.setState({ walletScreen: 1 });}}>
+                          Back
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -475,8 +488,12 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                     <div>
                       <div className={[cstyles.large, cstyles.highlight].join(" ")}>Your New Wallet</div>
                       <div className={cstyles.padtopsmall}>
-                        This is your new wallet. Below is your seed phrase. PLEASE STORE IT CAREFULLY! The seed phrase
-                        is the only way to recover your funds and transactions.
+                        {
+                          walletType === "Local"
+                            ?
+                              "This is your new wallet. Below is your seed phrase. PLEASE STORE IT CAREFULLY! The seed phrase is the only way to recover your funds and transactions."
+                            : "Your seed is SAFE and never left your device. We just interacted with your device to check everything is ready."
+                        }
                       </div>
                       <hr />
                       <div className={cstyles.padtopsmall}>{seed}</div>

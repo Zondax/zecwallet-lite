@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
 import { ErrorModalData } from "./ErrorModal";
+import {WalletType} from "../utils/utils";
 
 export class TotalBalance {
   // Total t address, confirmed and spendable
@@ -268,6 +269,10 @@ export default class AppState {
   // Callbacks for the password dialog box
   passwordState: PasswordState;
 
+  // Indicates if the app will be connected to a hardware wallet
+  // which manage the seed and priv keys
+  walletType: WalletType;
+
   constructor() {
     this.totalBalance = new TotalBalance();
     this.addressesWithBalance = [];
@@ -285,5 +290,6 @@ export default class AppState {
     this.rescanning = false;
     this.prevSyncId = -1;
     this.passwordState = new PasswordState();
+    this.walletType = "Local";
   }
 }

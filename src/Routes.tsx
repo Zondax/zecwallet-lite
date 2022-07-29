@@ -27,7 +27,7 @@ import AppState, {
   SendProgress,
 } from "./components/AppState";
 import RPC from "./rpc";
-import Utils from "./utils/utils";
+import Utils, {WalletType} from "./utils/utils";
 import { ZcashURITarget } from "./utils/uris";
 import Zcashd from "./components/Zcashd";
 import AddressBook from "./components/Addressbook";
@@ -341,6 +341,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ info: newInfo });
   };
 
+  setWalletType = (walletType: WalletType) => {
+      this.setState({walletType})
+  }
+
   sendTransaction = async (sendJson: SendManyJson[], setSendProgress: (p?: SendProgress) => void): Promise<string> => {
     try {
       const txid = await this.rpc.sendTransaction(sendJson, setSendProgress);
@@ -594,6 +598,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
                     prevSyncId={prevSyncId}
                     setRescanning={this.setRescanning}
                     setInfo={this.setInfo}
+                    setWalletType={this.setWalletType}
+                    walletType={this.state.walletType}
                     openServerSelectModal={this.openServerSelectModal}
                   />
                 )}
