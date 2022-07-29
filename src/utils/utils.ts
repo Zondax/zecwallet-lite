@@ -3,6 +3,8 @@
 /* eslint-disable no-plusplus */
 export const NO_CONNECTION: string = "Could not connect to zcashd";
 
+export type WalletType = "Ledger" | "Local"
+
 export default class Utils {
   // v1 LightwalletD
   static V1_LIGHTWALLETD: string = "https://lightwalletd.zecwallet.co:1443";
