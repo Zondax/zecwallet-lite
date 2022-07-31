@@ -26,6 +26,7 @@ type AddressBlockProps = {
   label?: string;
   fetchAndSetSinglePrivKey: (k: string) => void;
   fetchAndSetSingleViewKey: (k: string) => void;
+  walletType: WalletType
 };
 const AddressBlock = ({
   addressBalance,
@@ -36,6 +37,7 @@ const AddressBlock = ({
   fetchAndSetSinglePrivKey,
   viewKey,
   fetchAndSetSingleViewKey,
+  walletType,
 }: AddressBlockProps) => {
   const { address } = addressBalance;
 
@@ -82,7 +84,7 @@ const AddressBlock = ({
             <div className={[cstyles.padtopsmall].join(" ")}>{Utils.getZecToUsdString(zecPrice, balance)}</div>
 
             <div className={[cstyles.margintoplarge, cstyles.breakword].join(" ")}>
-              {privateKey && (
+              {privateKey && walletType === "Local" && (
                 <div>
                   <div className={[cstyles.sublight].join(" ")}>Private Key</div>
                   <div
@@ -127,7 +129,7 @@ const AddressBlock = ({
               >
                 {copied ? <span>Copied!</span> : <span>Copy Address</span>}
               </button>
-              {!privateKey && (
+              {!privateKey && walletType === "Local" && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -137,7 +139,7 @@ const AddressBlock = ({
                 </button>
               )}
 
-              {Utils.isZaddr(address) && !viewKey && (
+              {Utils.isZaddr(address) && !viewKey && walletType === "Local" && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -267,6 +269,7 @@ export default class Receive extends Component<Props> {
                       viewKey={addressViewKeys.get(a.address)}
                       fetchAndSetSinglePrivKey={fetchAndSetSinglePrivKey}
                       fetchAndSetSingleViewKey={fetchAndSetSingleViewKey}
+                      walletType={walletType}
                     />
                   ))}
                 </Accordion>
@@ -299,6 +302,7 @@ export default class Receive extends Component<Props> {
                       viewKey={addressViewKeys.get(a.address)}
                       fetchAndSetSinglePrivKey={fetchAndSetSinglePrivKey}
                       fetchAndSetSingleViewKey={fetchAndSetSingleViewKey}
+                      walletType={walletType}
                     />
                   ))}
                 </Accordion>
