@@ -39,7 +39,13 @@ class LoadingScreenState {
   getinfoRetryCount: number;
 
   constructor() {
-    this.currentStatus = "Loading...";
+    this.currentStatus = <div>
+      <div>Loading...</div>
+      <br/>
+      <div>If a Ledger is present, please make sure it is unlocked and Zcash app opened.</div>
+      <div>Requests will be sent to recover addresses created previously.</div>
+      <div>It can take several minutes, so please be patient.</div>
+    </div>;
     this.currentStatusIsError = false;
     this.loadingDone = false;
     this.rpcConfig = null;
