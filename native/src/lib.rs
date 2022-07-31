@@ -7,6 +7,7 @@ use neon::prelude::JsBoolean;
 use neon::prelude::JsNumber;
 use neon::prelude::JsResult;
 use neon::prelude::JsString;
+use neon::prelude::Object;
 use neon::register_module;
 use zecwalletlitelib::lightclient::lightclient_config::LightClientConfig;
 
@@ -164,22 +165,25 @@ fn litelib_initialize_new_from_phrase(mut cx: FunctionContext) -> JsResult<JsStr
 }
 
 // Initialize a new lightclient and store its value
-fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsString> {
+fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsObject> {
     let server_uri = cx.argument::<JsString>(0)?.value(&mut cx);
 
     let resp = || {
+        let reply = cx.empty_object();
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
         let (config, _latest_block_height) = match LightClientConfig::create(server) {
             Ok((c, h)) => (c, h),
             Err(e) => {
-                return format!("Error: {}", e);
+                reply.set(&mut cx, "error", cx.string(format!("Error: {}", e)));
+                return reply;
             }
         };
 
         let lightclient = match LightClient::read_from_disk(&config) {
             Ok(l) => l,
             Err(e) => {
-                return format!("Error: {}", e);
+                reply.set(&mut cx, "error", cx.string(format!("Error: {}", e)));
+                return reply;
             }
         };
 
@@ -191,7 +195,8 @@ fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsString> {
 
         LIGHTCLIENT.lock().unwrap().replace(Some(lc));
 
-        format!("OK")
+        reply.set(&mut cx, "walletType", cx.string(lc.do_wallet_kind_sync()));
+        reply
     };
 
     Ok(cx.string(resp()))
