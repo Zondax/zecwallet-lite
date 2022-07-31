@@ -11,7 +11,7 @@ import {
 import QRCode from "qrcode.react";
 import styles from "./Receive.module.css";
 import cstyles from "./Common.module.css";
-import Utils from "../utils/utils";
+import Utils, {WalletType} from "../utils/utils";
 import { AddressBalance, Info, ReceivePageState, AddressBookEntry } from "./AppState";
 import ScrollPane from "./ScrollPane";
 
@@ -170,6 +170,7 @@ type Props = {
   addressesWithBalance: AddressBalance[];
   addressBook: AddressBookEntry[];
   info: Info;
+  walletType: WalletType;
   addressPrivateKeys: Map<string, string>;
   addressViewKeys: Map<string, string>;
   receivePageState: ReceivePageState;
@@ -177,6 +178,7 @@ type Props = {
   fetchAndSetSingleViewKey: (k: string) => void;
   createNewAddress: (t: boolean) => void;
   rerenderKey: number;
+  openWorkingModal: (title: string, body: string | JSX.Element, fnToExec: ()=> void) => void
 };
 
 export default class Receive extends Component<Props> {
@@ -193,6 +195,7 @@ export default class Receive extends Component<Props> {
       fetchAndSetSingleViewKey,
       createNewAddress,
       rerenderKey,
+      walletType,
     } = this.props;
 
     // Convert the addressBalances into a map.
@@ -270,7 +273,11 @@ export default class Receive extends Component<Props> {
 
                 <button
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
-                  onClick={() => createNewAddress(true)}
+                  onClick={() => {
+                    const fnToExec = () => createNewAddress(true)
+                    const description = walletType === "Ledger" ? "Please, review and accept the request on your device. It can take several seconds to show on screen." : "Please wait..."
+                    this.props.openWorkingModal("Creating new address", description, fnToExec)
+                  }}
                   type="button"
                 >
                   New Shielded Address

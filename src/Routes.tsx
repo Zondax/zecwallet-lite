@@ -36,6 +36,7 @@ import Sidebar from "./components/Sidebar";
 import Transactions from "./components/Transactions";
 import PasswordModal from "./components/PasswordModal";
 import ServerSelectModal from "./components/ServerSelectModal";
+import {WorkingModal, WorkingModalData} from "./components/WorkingModal";
 
 type Props = {};
 
@@ -78,6 +79,23 @@ export default class RouteApp extends React.Component<Props, AppState> {
 
   getFullState = (): AppState => {
     return this.state;
+  };
+
+  openWorkingModal = (title: string, body: string | JSX.Element, fnToExec?: () => void) => {
+    const workingModalData = new WorkingModalData();
+    workingModalData.modalIsOpen = true;
+    workingModalData.title = title;
+    workingModalData.body = body;
+    workingModalData.fnToExecute = fnToExec
+
+    this.setState({ workingModalData });
+  };
+
+  closeWorkingModal = () => {
+    const workingModalData = new WorkingModalData();
+    workingModalData.modalIsOpen = false;
+
+    this.setState({ workingModalData });
   };
 
   openErrorModal = (title: string, body: string | JSX.Element) => {
@@ -456,16 +474,22 @@ export default class RouteApp extends React.Component<Props, AppState> {
       rescanning,
       prevSyncId,
       errorModalData,
+      workingModalData,
       serverSelectState,
       passwordState,
+      walletType,
     } = this.state;
 
     const standardProps = {
       openErrorModal: this.openErrorModal,
       closeErrorModal: this.closeErrorModal,
+      openWorkingModal: this.openWorkingModal,
+      closeWorkingModal: this.closeWorkingModal,
       setSendTo: this.setSendTo,
+      walletType,
       info,
       openPasswordAndUnlockIfNeeded: this.openPasswordAndUnlockIfNeeded,
+
     };
 
     const hasLatestBlock = info && info.latestBlock > 0 ? true : false;
@@ -478,6 +502,14 @@ export default class RouteApp extends React.Component<Props, AppState> {
           modalIsOpen={errorModalData.modalIsOpen}
           closeModal={this.closeErrorModal}
         />
+
+          <WorkingModal
+            title={workingModalData.title}
+            body={workingModalData.body}
+            modalIsOpen={workingModalData.modalIsOpen}
+            fnToExecute={workingModalData.fnToExecute}
+            closeModal={this.closeWorkingModal}
+          />
 
         <PasswordModal
           modalIsOpen={passwordState.showPassword}
@@ -599,7 +631,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
                     setRescanning={this.setRescanning}
                     setInfo={this.setInfo}
                     setWalletType={this.setWalletType}
-                    walletType={this.state.walletType}
+                    walletType={walletType}
                     openServerSelectModal={this.openServerSelectModal}
                   />
                 )}
