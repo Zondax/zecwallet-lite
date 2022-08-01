@@ -278,7 +278,7 @@ export default class Receive extends Component<Props> {
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
                   onClick={() => {
                     const fnToExec = () => createNewAddress(true)
-                    const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to show on screen." : "Please wait..."
+                    const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
                     this.props.openWorkingModal("Creating new address", description, fnToExec)
                   }}
                   type="button"
