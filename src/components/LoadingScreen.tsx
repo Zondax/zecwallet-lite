@@ -170,7 +170,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
               <span>
                 Error Initializing Lightclient
                 <br />
-                {result}
+                {result.error}
               </span>
             ),
             currentStatusIsError: true,
