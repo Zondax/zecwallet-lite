@@ -84,7 +84,7 @@ const AddressBlock = ({
             <div className={[cstyles.padtopsmall].join(" ")}>{Utils.getZecToUsdString(zecPrice, balance)}</div>
 
             <div className={[cstyles.margintoplarge, cstyles.breakword].join(" ")}>
-              {privateKey && walletType === "Local" && (
+              {privateKey && walletType === "memory" && (
                 <div>
                   <div className={[cstyles.sublight].join(" ")}>Private Key</div>
                   <div
@@ -129,7 +129,7 @@ const AddressBlock = ({
               >
                 {copied ? <span>Copied!</span> : <span>Copy Address</span>}
               </button>
-              {!privateKey && walletType === "Local" && (
+              {!privateKey && walletType === "memory" && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -139,7 +139,7 @@ const AddressBlock = ({
                 </button>
               )}
 
-              {Utils.isZaddr(address) && !viewKey && walletType === "Local" && (
+              {Utils.isZaddr(address) && !viewKey && walletType === "memory" && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -278,7 +278,7 @@ export default class Receive extends Component<Props> {
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
                   onClick={() => {
                     const fnToExec = () => createNewAddress(true)
-                    const description = walletType === "Ledger" ? "Please, review and accept the request on your device. It can take several seconds to show on screen." : "Please wait..."
+                    const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to show on screen." : "Please wait..."
                     this.props.openWorkingModal("Creating new address", description, fnToExec)
                   }}
                   type="button"

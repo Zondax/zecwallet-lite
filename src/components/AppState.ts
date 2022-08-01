@@ -295,6 +295,6 @@ export default class AppState {
     this.rescanning = false;
     this.prevSyncId = -1;
     this.passwordState = new PasswordState();
-    this.walletType = "Local";
+    this.walletType = "memory";
   }
 }

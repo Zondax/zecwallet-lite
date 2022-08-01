@@ -163,8 +163,8 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     } else {
       try {
         const result = native.litelib_initialize_existing(url);
-        console.log(`Intialization: ${result}`);
-        if (result !== "OK") {
+        console.log(`Intialization: ${JSON.stringify(result)}`);
+        if (result.error) {
           this.setState({
             currentStatus: (
               <span>
@@ -179,6 +179,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
           return;
         }
 
+        this.props.setWalletType(result.walletType)
         this.getInfo();
       } catch (e) {
         console.log("Error initializing", e);
@@ -316,7 +317,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     const { url } = this.state;
     const result = native.litelib_initialize_ledger(url);
 
-    this.props.setWalletType("Ledger");
+    this.props.setWalletType("ledger");
     this.setState({  newWalletError: null, walletScreen: 2})
 
     if (result.startsWith("Error")) {
@@ -328,7 +329,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     const { url } = this.state;
     const result = native.litelib_initialize_new(url);
 
-    this.props.setWalletType("Local");
+    this.props.setWalletType("memory");
     this.setState({  newWalletError: null, walletScreen: 2})
 
     if (result.startsWith("Error")) {
@@ -477,7 +478,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                   {newWalletError && (
                     <div>
                       <div className={[cstyles.large, cstyles.highlight].join(" ")}>{"Error Creating New Wallet"}</div>
-                      <div className={cstyles.padtopsmall}>{walletType === "Local" ? "There was an error creating a new wallet" : "There was an error communicating to device"}</div>
+                      <div className={cstyles.padtopsmall}>{walletType === "memory" ? "There was an error creating a new wallet" : "There was an error communicating to device"}</div>
                       <hr />
                       <div className={cstyles.padtopsmall}>{newWalletError}</div>
                       <hr />
@@ -495,13 +496,13 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                       <div className={[cstyles.large, cstyles.highlight].join(" ")}>Your New Wallet</div>
                       <div className={cstyles.padtopsmall}>
                         {
-                          walletType === "Local"
+                          walletType === "memory"
                             ?
                               "This is your new wallet. Below is your seed phrase. PLEASE STORE IT CAREFULLY! The seed phrase is the only way to recover your funds and transactions."
                             : "Your seed is SAFE and never left your device. We just interacted with your device to check everything is ready."
                         }
                       </div>
-                      {walletType === "Local" &&
+                      {walletType === "memory" &&
                         <div>
                           <hr />
                           <div className={cstyles.padtopsmall}>{seed}</div>

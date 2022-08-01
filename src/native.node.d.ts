@@ -8,6 +8,6 @@ export function litelib_initialize_new_from_phrase(
   birthday: number,
   overwrite: boolean
 ): string;
-export function litelib_initialize_existing(server_uri: string): string;
+export function litelib_initialize_existing(server_uri: string): ({ error:string } & { walletType: "ledger" |"memory" });
 export function litelib_deinitialize(): string;
 export function litelib_execute(cmd: string, args: string): string;

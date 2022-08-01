@@ -3,7 +3,7 @@
 /* eslint-disable no-plusplus */
 export const NO_CONNECTION: string = "Could not connect to zcashd";
 
-export type WalletType = "Ledger" | "Local"
+export type WalletType = "ledger" | "memory"
 
 export default class Utils {
   // v1 LightwalletD
