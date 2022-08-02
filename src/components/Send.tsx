@@ -14,13 +14,15 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import styles from "./Send.module.css";
 import cstyles from "./Common.module.css";
 import { ToAddr, AddressBalance, SendPageState, Info, AddressBookEntry, TotalBalance, SendProgress } from "./AppState";
-import Utils from "../utils/utils";
+import Utils, {WalletType} from "../utils/utils";
 import ScrollPane from "./ScrollPane";
 import ArrowUpLight from "../assets/img/arrow_up_dark.png";
 import { BalanceBlockHighlight } from "./BalanceBlocks";
 import RPC from "../rpc";
 import routes from "../constants/routes.json";
 import { parseZcashURI, ZcashURITarget } from "../utils/uris";
+import {ErrorModalData} from "./ErrorModal";
+import {getModalConfigByWalletType} from "../utils/modalConfigs";
 
 type OptionType = {
   value: string;
@@ -252,7 +254,8 @@ type ConfirmModalProps = {
   clearToAddrs: () => void;
   closeModal: () => void;
   modalIsOpen: boolean;
-  openErrorModal: (title: string, body: string) => void;
+  walletType: WalletType;
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => void
   openPasswordAndUnlockIfNeeded: (successCallback: () => void | Promise<void>) => void;
 };
 
@@ -266,6 +269,7 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
   openErrorModal,
   openPasswordAndUnlockIfNeeded,
   history,
+                                                                                   walletType,
 }) => {
   const defaultFee = RPC.getDefaultFee();
   const sendingTotal = sendPageState.toaddrs.reduce((s, t) => s + t.amount, 0.0) + defaultFee;
@@ -275,14 +279,20 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
     // First, close the confirm modal.
     closeModal();
 
+    const modaleConfig = getModalConfigByWalletType(walletType)
+
     // This will be replaced by either a success TXID or error message that the user
     // has to close manually.
-    openErrorModal("Computing Transaction", "Please wait...This could take a while");
+    const description = walletType === "ledger" ? "Please, review the tx on your device, and accept it." : "Please wait...This could take a while"
+    openErrorModal("Computing Transaction", description, modaleConfig);
+
     const setSendProgress = (progress?: SendProgress) => {
       if (progress && progress.sendInProgress) {
+        const description = walletType === "ledger" ? "Please, check your device to the status. This could take a while." : `Step ${progress.progress} of ${progress.total}. ETA ${progress.etaSeconds}s`
         openErrorModal(
           `Computing Transaction`,
-          `Step ${progress.progress} of ${progress.total}. ETA ${progress.etaSeconds}s`
+          description,
+          modaleConfig
         );
       }
     };
@@ -382,7 +392,8 @@ type Props = {
   setSendTo: (targets: ZcashURITarget[] | ZcashURITarget) => void;
   sendTransaction: (sendJson: SendManyJson[], setSendProgress: (p?: SendProgress) => void) => Promise<string>;
   setSendPageState: (sendPageState: SendPageState) => void;
-  openErrorModal: (title: string, body: string) => void;
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => void
+  walletType: WalletType;
   info: Info;
   openPasswordAndUnlockIfNeeded: (successCallback: () => void) => void;
 };
@@ -559,6 +570,7 @@ export default class Send extends PureComponent<Props, SendState> {
       totalBalance,
       openErrorModal,
       openPasswordAndUnlockIfNeeded,
+      walletType
     } = this.props;
 
     const totalAmountAvailable = totalBalance.transparent + totalBalance.spendablePrivate;
@@ -633,6 +645,7 @@ export default class Send extends PureComponent<Props, SendState> {
             info={info}
             sendTransaction={sendTransaction}
             openErrorModal={openErrorModal}
+            walletType={walletType}
             closeModal={this.closeModal}
             modalIsOpen={modalIsOpen}
             clearToAddrs={this.clearToAddrs}
