@@ -2,7 +2,6 @@
 
 import { ErrorModalData } from "./ErrorModal";
 import {WalletType} from "../utils/utils";
-import {WorkingModalData} from "./WorkingModal";
 
 export class TotalBalance {
   // Total t address, confirmed and spendable
@@ -258,9 +257,6 @@ export default class AppState {
   // Error modal data
   errorModalData: ErrorModalData;
 
-  // Work in progress modal data
-  workingModalData: WorkingModalData;
-
   // Server selection
   serverSelectState: ServerSelectState;
 
@@ -286,7 +282,6 @@ export default class AppState {
     this.addressBook = [];
     this.transactions = [];
     this.errorModalData = new ErrorModalData();
-    this.workingModalData = new WorkingModalData();
     this.serverSelectState = new ServerSelectState();
     this.sendPageState = new SendPageState();
     this.receivePageState = new ReceivePageState();

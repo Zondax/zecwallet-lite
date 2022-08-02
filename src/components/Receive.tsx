@@ -14,6 +14,7 @@ import cstyles from "./Common.module.css";
 import Utils, {WalletType} from "../utils/utils";
 import { AddressBalance, Info, ReceivePageState, AddressBookEntry } from "./AppState";
 import ScrollPane from "./ScrollPane";
+import {ErrorModalData} from "./ErrorModal";
 
 const { shell, clipboard } = window.require("electron");
 
@@ -180,7 +181,7 @@ type Props = {
   fetchAndSetSingleViewKey: (k: string) => void;
   createNewAddress: (t: boolean) => void;
   rerenderKey: number;
-  openWorkingModal: (title: string, body: string | JSX.Element, fnToExec: ()=> void) => void
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
 
 export default class Receive extends Component<Props> {
@@ -277,9 +278,11 @@ export default class Receive extends Component<Props> {
                 <button
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
                   onClick={() => {
-                    const fnToExec = () => createNewAddress(true)
                     const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
-                    this.props.openWorkingModal("Creating new address", description, fnToExec)
+                    const configs = new ErrorModalData()
+                    configs.fnToExecute = () => createNewAddress(true)
+                    configs.showCloseBtn = false
+                    this.props.openErrorModal("Creating new address", description, configs)
                   }}
                   type="button"
                 >

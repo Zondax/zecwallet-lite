@@ -36,7 +36,6 @@ import Sidebar from "./components/Sidebar";
 import Transactions from "./components/Transactions";
 import PasswordModal from "./components/PasswordModal";
 import ServerSelectModal from "./components/ServerSelectModal";
-import {WorkingModal, WorkingModalData} from "./components/WorkingModal";
 
 type Props = {};
 
@@ -81,25 +80,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
     return this.state;
   };
 
-  openWorkingModal = (title: string, body: string | JSX.Element, fnToExec?: () => void) => {
-    const workingModalData = new WorkingModalData();
-    workingModalData.modalIsOpen = true;
-    workingModalData.title = title;
-    workingModalData.body = body;
-    workingModalData.fnToExecute = fnToExec
-
-    this.setState({ workingModalData });
-  };
-
-  closeWorkingModal = () => {
-    const workingModalData = new WorkingModalData();
-    workingModalData.modalIsOpen = false;
-
-    this.setState({ workingModalData });
-  };
-
-  openErrorModal = (title: string, body: string | JSX.Element) => {
-    const errorModalData = new ErrorModalData();
+  openErrorModal = (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => {
+    let errorModalData = customConfigs || new ErrorModalData();
     errorModalData.modalIsOpen = true;
     errorModalData.title = title;
     errorModalData.body = body;
@@ -474,7 +456,6 @@ export default class RouteApp extends React.Component<Props, AppState> {
       rescanning,
       prevSyncId,
       errorModalData,
-      workingModalData,
       serverSelectState,
       passwordState,
       walletType,
@@ -483,8 +464,6 @@ export default class RouteApp extends React.Component<Props, AppState> {
     const standardProps = {
       openErrorModal: this.openErrorModal,
       closeErrorModal: this.closeErrorModal,
-      openWorkingModal: this.openWorkingModal,
-      closeWorkingModal: this.closeWorkingModal,
       setSendTo: this.setSendTo,
       walletType,
       info,
@@ -500,16 +479,12 @@ export default class RouteApp extends React.Component<Props, AppState> {
           title={errorModalData.title}
           body={errorModalData.body}
           modalIsOpen={errorModalData.modalIsOpen}
+          fnToExecute={errorModalData.fnToExecute}
+          shouldCloseOnEsc={errorModalData.shouldCloseOnEsc}
+          shouldCloseOnOverlayClick={errorModalData.shouldCloseOnOverlayClick}
+          showCloseBtn={errorModalData.showCloseBtn}
           closeModal={this.closeErrorModal}
         />
-
-          <WorkingModal
-            title={workingModalData.title}
-            body={workingModalData.body}
-            modalIsOpen={workingModalData.modalIsOpen}
-            fnToExecute={workingModalData.fnToExecute}
-            closeModal={this.closeWorkingModal}
-          />
 
         <PasswordModal
           modalIsOpen={passwordState.showPassword}
