@@ -233,7 +233,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
   runSyncStatusPoller = (prevSyncId: number) => {
     const me = this;
 
-    const { setRPCConfig, setInfo, setRescanning } = this.props;
+    const { setRPCConfig, setInfo, setRescanning, walletType } = this.props;
     const { url } = this.state;
 
     const info = RPC.getInfoObject();
@@ -306,6 +306,18 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                 <br />
                 <br />
                 Please wait... This could take several minutes or hours
+                <br/>
+                <br/>
+                {
+                  walletType === "ledger"
+                  ?
+                    <div>
+                      <div>Please, make sure the device is unlocked and Zcash app opened.</div>
+                      <div>Many requests will be sent to read some transactions from chain.</div>
+                    </div>
+                  :
+                    null
+                }
               </div>
             );
             me.setState({ currentStatus });
