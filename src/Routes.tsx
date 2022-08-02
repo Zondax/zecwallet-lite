@@ -607,6 +607,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
                     setInfo={this.setInfo}
                     setWalletType={this.setWalletType}
                     walletType={walletType}
+                    openErrorModal={this.openErrorModal}
                     openServerSelectModal={this.openServerSelectModal}
                   />
                 )}

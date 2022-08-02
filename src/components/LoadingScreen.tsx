@@ -13,6 +13,7 @@ import cstyles from "./Common.module.css";
 import styles from "./LoadingScreen.module.css";
 import Logo from "../assets/img/logobig.png";
 import Utils, {DEFAULT_HD_BIRTHDAY, WalletType} from "../utils/utils";
+import {ErrorModalData} from "./ErrorModal";
 
 const { ipcRenderer } = window.require("electron");
 const fs = window.require("fs");
@@ -67,6 +68,7 @@ type Props = {
   setWalletType: (type: WalletType) => void;
   openServerSelectModal: () => void;
   walletType: WalletType
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
 
 class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreenState> {
@@ -447,7 +449,13 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                     Connect to a Ledger wallet to use your seed from it.
                   </div>
                   <div className={cstyles.margintoplarge}>
-                    <button type="button" className={cstyles.primarybutton} onClick={this.connectToHDWallet}>
+                    <button type="button" className={cstyles.primarybutton} onClick={() => {
+                      const description = <div><div>Please, review and accept the requests on your device.</div><div>It can take several iterations to complete the whole process.</div></div>
+                      const configs = new ErrorModalData()
+                      configs.fnToExecute = () => this.connectToHDWallet()
+                      configs.showCloseBtn = false
+                      this.props.openErrorModal("Connecting to Ledger", description, configs)
+                    }}>
                       Connect
                     </button>
                   </div>
