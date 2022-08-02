@@ -12,7 +12,7 @@ import RPC from "../rpc";
 import cstyles from "./Common.module.css";
 import styles from "./LoadingScreen.module.css";
 import Logo from "../assets/img/logobig.png";
-import Utils, {DEFAULT_HD_BIRTHDAY, WalletType} from "../utils/utils";
+import Utils, { WalletType} from "../utils/utils";
 import {ErrorModalData} from "./ErrorModal";
 
 const { ipcRenderer } = window.require("electron");
@@ -317,7 +317,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
 
   connectToHDWallet = () => {
     const { url } = this.state;
-    const result = native.litelib_initialize_ledger(url, DEFAULT_HD_BIRTHDAY);
+    const result = native.litelib_initialize_ledger(url, this.state.birthday);
 
     this.props.setWalletType("ledger");
     this.setState({  newWalletError: null, walletScreen: 2})
@@ -450,12 +450,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                   </div>
                   <div className={cstyles.margintoplarge}>
                     <button type="button" className={cstyles.primarybutton} onClick={() => {
-                      const description = <div><div>Please, review and accept the requests on your device.</div><div>It can take several iterations to complete the whole process.</div></div>
-                      const configs = new ErrorModalData()
-                      configs.fnToExecute = () => this.connectToHDWallet()
-                      configs.showCloseBtn = false
-                      this.props.openErrorModal("Connecting to Ledger", description, configs)
-                    }}>
+                      this.setState({ walletScreen: 4 });}}>
                       Connect
                     </button>
                   </div>
@@ -577,6 +572,42 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {walletScreen === 4 && (
+            <div>
+              <div>
+                <img src={Logo} width="200px;" alt="Logo" />
+              </div>
+              <div className={[cstyles.well, styles.newwalletcontainer].join(" ")}>
+                <div className={cstyles.verticalflex}>
+                    <div>
+                      <div className={[cstyles.large, cstyles.margintoplarge].join(" ")}>
+                        Wallet Birthday. If you don&rsquo;t know this, it is OK to enter &lsquo;0&rsquo;
+                      </div>
+                      <input
+                        type="number"
+                        className={cstyles.inputbox}
+                        value={birthday}
+                        onChange={(e) => this.updateBirthday(e)}
+                      />
+
+                      <div className={cstyles.margintoplarge}>
+                        <button type="button" className={cstyles.primarybutton} onClick={() => {
+                          const description = <div><div>Please, review and accept the requests on your device.</div><div>It can take several iterations to complete the whole process.</div></div>
+                          const configs = new ErrorModalData()
+                          configs.fnToExecute = () => this.connectToHDWallet()
+                          configs.showCloseBtn = false
+                          this.props.openErrorModal("Connecting to Ledger", description, configs)
+                        }}>
+                          Connect
+                        </button>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>
