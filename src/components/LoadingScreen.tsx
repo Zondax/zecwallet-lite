@@ -316,8 +316,8 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
   };
 
   connectToHDWallet = () => {
-    const { url } = this.state;
-    const result = native.litelib_initialize_ledger(url, this.state.birthday);
+    const { url, birthday } = this.state;
+    const result = native.litelib_initialize_ledger(url, birthday);
 
     this.props.setWalletType("ledger");
     this.setState({  newWalletError: null, walletScreen: 2})
