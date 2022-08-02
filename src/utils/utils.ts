@@ -5,8 +5,6 @@ export const NO_CONNECTION: string = "Could not connect to zcashd";
 
 export type WalletType = "ledger" | "memory"
 
-export const DEFAULT_HD_BIRTHDAY = 0
-
 export default class Utils {
   // v1 LightwalletD
   static V1_LIGHTWALLETD: string = "https://lightwalletd.zecwallet.co:1443";
