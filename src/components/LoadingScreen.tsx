@@ -12,7 +12,7 @@ import RPC from "../rpc";
 import cstyles from "./Common.module.css";
 import styles from "./LoadingScreen.module.css";
 import Logo from "../assets/img/logobig.png";
-import Utils, {WalletType} from "../utils/utils";
+import Utils, {DEFAULT_HD_BIRTHDAY, WalletType} from "../utils/utils";
 
 const { ipcRenderer } = window.require("electron");
 const fs = window.require("fs");
@@ -315,7 +315,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
 
   connectToHDWallet = () => {
     const { url } = this.state;
-    const result = native.litelib_initialize_ledger(url);
+    const result = native.litelib_initialize_ledger(url, DEFAULT_HD_BIRTHDAY);
 
     this.props.setWalletType("ledger");
     this.setState({  newWalletError: null, walletScreen: 2})
