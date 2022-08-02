@@ -52,23 +52,23 @@ fn litelib_wallet_exists(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 /// Connect to ledger hardware wallet.
 fn litelib_initialize_ledger(mut cx: FunctionContext) -> JsResult<JsString> {
     let server_uri = cx.argument::<JsString>(0)?.value(&mut cx);
+    let birthday = cx.argument::<JsNumber>(1)?.value(&mut cx);
 
     let resp = || {
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
-        let (config, latest_block_height) = match LightClientConfig::create(server) {
+        let (config, _) = match LightClientConfig::create(server) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
             }
         };
 
-        let lightclient =
-            match LightClient::with_ledger(&config, latest_block_height.saturating_sub(100)) {
-                Ok(l) => l,
-                Err(e) => {
-                    return format!("Error: {}", e);
-                }
-            };
+        let lightclient = match LightClient::with_ledger(&config, birthday as u64) {
+            Ok(l) => l,
+            Err(e) => {
+                return format!("Error: {}", e);
+            }
+        };
 
         // Initialize logging
         let _ = lightclient.init_logging();
