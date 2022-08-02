@@ -1,7 +1,7 @@
 import {ErrorModalData} from "../components/ErrorModal";
 import {WalletType} from "./utils";
 
-export const getModalConfigByWalletType = (walletType: WalletType): ErrorModalData => {
+export const getModalConfigByWalletType = (walletType: WalletType, fnToExecute?: () => void): ErrorModalData => {
   const data = new ErrorModalData()
 
   if( walletType === "ledger"){
@@ -9,6 +9,8 @@ export const getModalConfigByWalletType = (walletType: WalletType): ErrorModalDa
     data.shouldCloseOnEsc = false
     data.showCloseBtn = false
   }
+
+  data.fnToExecute = fnToExecute
 
   return data
 }
