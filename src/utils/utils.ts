@@ -7,13 +7,13 @@ export type WalletType = "ledger" | "memory"
 
 export default class Utils {
   // v1 LightwalletD
-  static V1_LIGHTWALLETD: string = "https://lightwalletd.zecwallet.co:1443";
+  static V1_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   // v2 LightwalletD
-  static V2_LIGHTWALLETD: string = "https://lwdv2.zecwallet.co:1443";
+  static V2_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   // v3 LightwalletD
-  static V3_LIGHTWALLETD: string = "https://lwdv3.zecwallet.co";
+  static V3_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   static isSapling(addr: string): boolean {
     if (!addr) return false;
