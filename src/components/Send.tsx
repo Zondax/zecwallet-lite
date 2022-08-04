@@ -619,11 +619,13 @@ export default class Send extends PureComponent<Props, SendState> {
                 />
               );
             })}
-            <div style={{ textAlign: "right" }}>
-              <button type="button" onClick={this.addToAddr}>
-                <i className={["fas", "fa-plus"].join(" ")} />
-              </button>
-            </div>
+            { walletType === "memory" &&
+              <div style={{textAlign: "right"}}>
+                <button type="button" onClick={this.addToAddr}>
+                  <i className={["fas", "fa-plus"].join(" ")}/>
+                </button>
+              </div>
+            }
           </ScrollPane>
 
           <div className={cstyles.center}>
