@@ -619,12 +619,15 @@ export default class Send extends PureComponent<Props, SendState> {
                 />
               );
             })}
-            { walletType === "memory" &&
-              <div style={{textAlign: "right"}}>
-                <button type="button" onClick={this.addToAddr}>
-                  <i className={["fas", "fa-plus"].join(" ")}/>
-                </button>
-              </div>
+            { (
+                    walletType === "memory"
+                ||  sendPageState.toaddrs.length < Utils.MAX_SEND_PAGES_ON_LEDGER_HD
+              ) &&
+                <div style={{textAlign: "right"}}>
+                  <button type="button" onClick={this.addToAddr}>
+                    <i className={["fas", "fa-plus"].join(" ")}/>
+                  </button>
+                </div>
             }
           </ScrollPane>
 

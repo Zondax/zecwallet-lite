@@ -15,6 +15,8 @@ export default class Utils {
   // v3 LightwalletD
   static V3_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
+  static MAX_SEND_PAGES_ON_LEDGER_HD: number = 10;
+
   static isSapling(addr: string): boolean {
     if (!addr) return false;
     return new RegExp("^z[a-z0-9]{77}$").test(addr) || new RegExp("^ztestsapling[a-z0-9]{76}$").test(addr);
