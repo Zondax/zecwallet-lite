@@ -15,7 +15,7 @@ export default class Utils {
   // v3 LightwalletD
   static V3_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
-  static MAX_SEND_PAGES_ON_LEDGER_HD: number = 10;
+  static MAX_SEND_PAGES_ON_LEDGER_HD: number = 5;
 
   static isSapling(addr: string): boolean {
     if (!addr) return false;
