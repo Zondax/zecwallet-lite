@@ -136,7 +136,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     // Try to read the default server
     //const store = new Store<Record<string, string>>();
     //let server = store.get('lightd/serveruri', Utils.V3_LIGHTWALLETD);
-    let server = Utils.V3_LIGHTWALLETD;
+    let server = Utils.DEFAULT_SERVER;
     // Automatically upgrade to v2 server if you had the previous v1 server.
     if (server === Utils.V1_LIGHTWALLETD || server === Utils.V2_LIGHTWALLETD) {
       server = Utils.V3_LIGHTWALLETD;

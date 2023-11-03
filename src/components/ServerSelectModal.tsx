@@ -33,12 +33,6 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
     }, 10);
   };
 
-  const servers = [
-    { name: "Zecwallet (Default)", uri: Utils.V3_LIGHTWALLETD },
-    { name: "Zecwallet (Backup)", uri: Utils.V2_LIGHTWALLETD },
-    { name: "ZcashFR (Community)", uri: "https://lightd-main.zcashfr.io:443" },
-  ];
-
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -52,7 +46,7 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
         </div>
 
         <div className={[cstyles.well, cstyles.verticalflex].join(" ")}>
-          {servers.map((s) => (
+          {Utils.SERVERS.map((s) => (
             <div style={{ margin: "10px" }} key={s.uri}>
               <input type="radio" name="server" value={s.uri} onClick={(e) => setSelected(e.currentTarget.value)} />
               {`${s.name} - ${s.uri}`}

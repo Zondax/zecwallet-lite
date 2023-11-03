@@ -1,22 +1,24 @@
 #[macro_use]
 extern crate lazy_static;
+use zecwalletlitelib as zecwallet;
 
-use neon::prelude::Context;
-use neon::prelude::FunctionContext;
-use neon::prelude::JsBoolean;
-use neon::prelude::JsNumber;
-use neon::prelude::JsObject;
-use neon::prelude::JsResult;
-use neon::prelude::JsString;
-use neon::prelude::Object;
-use neon::register_module;
-use zecwalletlitelib::lightclient::lightclient_config::LightClientConfig;
+use neon::{
+    prelude::{
+        Context, FunctionContext, JsBoolean, JsNumber, JsObject, JsResult, JsString, Object,
+    },
+    register_module,
+};
 
-use std::cell::RefCell;
-use std::sync::{Arc, Mutex};
-use std::thread;
+use zecwallet::{commands, lightclient::lightclient_config::Network};
 
-use zecwalletlitelib::{commands, lightclient::LightClient};
+use std::{
+    cell::RefCell,
+    sync::{Arc, Mutex},
+    thread,
+};
+
+type LightClient = zecwallet::lightclient::LightClient<Network>;
+type LightClientConfig = zecwallet::lightclient::lightclient_config::LightClientConfig<Network>;
 
 // We'll use a MUTEX to store a global lightclient instance,
 // so we don't have to keep creating it. We need to store it here, in rust
@@ -43,8 +45,15 @@ register_module!(mut m, {
 
 // Check if there is an existing wallet
 fn litelib_wallet_exists(mut cx: FunctionContext) -> JsResult<JsBoolean> {
-    let _chain_name = cx.argument::<JsString>(0)?.value(&mut cx);
-    let config = LightClientConfig::create_unconnected(String::from("main"), None);
+    use zecwallet::primitives::consensus::{MainNetwork, TestNetwork};
+
+    let chain_name = cx.argument::<JsString>(0)?.value(&mut cx);
+    let params = match &chain_name[..] {
+        "zs" | "main" => Network::Main(MainNetwork),
+        "ztestsapling" | "test" | "zregtestsapling" | "regtest" => Network::Test(TestNetwork),
+        c => panic!("Unknown chain {}", c),
+    };
+    let config = LightClientConfig::create_unconnected(params, None);
 
     Ok(cx.boolean(config.wallet_exists()))
 }
@@ -56,7 +65,7 @@ fn litelib_initialize_ledger(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let resp = || {
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
-        let (config, _) = match LightClientConfig::create(server) {
+        let (config, _) = match LightClientConfig::create(server, None) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -91,7 +100,7 @@ fn litelib_initialize_new(mut cx: FunctionContext) -> JsResult<JsString> {
 
     let resp = || {
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
-        let (config, latest_block_height) = match LightClientConfig::create(server) {
+        let (config, latest_block_height) = match LightClientConfig::create(server, None) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -136,7 +145,7 @@ fn litelib_initialize_new_from_phrase(mut cx: FunctionContext) -> JsResult<JsStr
 
     let resp = || {
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
-        let (config, _latest_block_height) = match LightClientConfig::create(server) {
+        let (config, _latest_block_height) = match LightClientConfig::create(server, None) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 return format!("Error: {}", e);
@@ -172,7 +181,7 @@ fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsObject> {
     let resp = || {
         let reply = cx.empty_object();
         let server = LightClientConfig::get_server_or_default(Some(server_uri));
-        let (config, _latest_block_height) = match LightClientConfig::create(server) {
+        let (config, _latest_block_height) = match LightClientConfig::create(server, None) {
             Ok((c, h)) => (c, h),
             Err(e) => {
                 let val = cx.string(format!("Error: {}", e));
@@ -200,7 +209,9 @@ fn litelib_initialize_existing(mut cx: FunctionContext) -> JsResult<JsObject> {
 
         LIGHTCLIENT.lock().unwrap().replace(Some(lc));
 
-        reply.set(&mut cx, "walletType", wallet_kind);
+        reply
+            .set(&mut cx, "walletType", wallet_kind)
+            .expect("able to set walletType");
         reply
     };
 
