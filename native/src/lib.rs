@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate lazy_static;
+use once_cell::sync::OnceCell;
 use zecwalletlitelib as zecwallet;
 
 use neon::{
@@ -23,10 +24,7 @@ type LightClientConfig = zecwallet::lightclient::lightclient_config::LightClient
 // We'll use a MUTEX to store a global lightclient instance,
 // so we don't have to keep creating it. We need to store it here, in rust
 // because we can't return such a complex structure back to JS
-lazy_static! {
-    static ref LIGHTCLIENT: Mutex<RefCell<Option<Arc<LightClient>>>> =
-        Mutex::new(RefCell::new(None));
-}
+static LIGHTCLIENT: Mutex<RefCell<Option<Arc<LightClient>>>> = Mutex::new(RefCell::new(None));
 
 register_module!(mut m, {
     //m.export_function("litelib_say_hello", litelib_say_hello)?;
