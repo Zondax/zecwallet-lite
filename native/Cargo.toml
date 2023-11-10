@@ -15,10 +15,6 @@ default-features = false
 features = ["napi-6"]
 
 [dependencies]
-zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", branch = "main" }
+zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", branch = "feat/zip-0317" }
 #zecwalletlitelib = { path = "../../zecwallet-light-cli/lib" }
 lazy_static = "1.4.0"
-
-[patch.crates-io]
-ledger-zcash = { git = "https://github.com/Zondax/ledger-zcash-rs", branch = "ledger-v5" }
-zcash-hsmbuilder = { git = "https://github.com/Zondax/ledger-zcash-rs", branch = "ledger-v5" }
