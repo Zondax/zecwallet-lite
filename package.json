@@ -8,7 +8,7 @@
   "author": {
     "name": "Aditya Kulkarni",
     "email": "aditya@zecwallet.co",
-    "url": "https://github.com/adityapk00/zecwallet-lite"
+    "url": "https://github.com/Zondax/zecwallet-lite"
   },
   "dependencies": {
     "@babel/core": "7.12.3",
