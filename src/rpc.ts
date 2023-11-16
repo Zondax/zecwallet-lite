@@ -1,4 +1,3 @@
-// @flow
 /* eslint-disable max-classes-per-file */
 import {
   TotalBalance,
@@ -8,6 +7,9 @@ import {
   TxDetail,
   Info,
   SendProgress,
+  AddressType,
+  AddressDetail,
+  WalletSettings,
 } from "./components/AppState";
 import { SendManyJson } from "./components/Send";
 
@@ -20,8 +22,9 @@ export default class RPC {
   fnSetTotalBalance: (tb: TotalBalance) => void;
   fnSetAddressesWithBalance: (abs: AddressBalance[]) => void;
   fnSetTransactionsList: (t: Transaction[]) => void;
-  fnSetAllAddresses: (a: string[]) => void;
+  fnSetAllAddresses: (a: AddressDetail[]) => void;
   fnSetZecPrice: (p?: number) => void;
+  fnSetWalletSettings: (settings: WalletSettings) => void;
   refreshTimerID?: NodeJS.Timeout;
   updateTimerId?: NodeJS.Timeout;
 
@@ -34,9 +37,10 @@ export default class RPC {
     fnSetTotalBalance: (tb: TotalBalance) => void,
     fnSetAddressesWithBalance: (abs: AddressBalance[]) => void,
     fnSetTransactionsList: (t: Transaction[]) => void,
-    fnSetAllAddresses: (a: string[]) => void,
+    fnSetAllAddresses: (a: AddressDetail[]) => void,
     fnSetInfo: (info: Info) => void,
-    fnSetZecPrice: (p?: number) => void
+    fnSetZecPrice: (p?: number) => void,
+    fnSetWalletSettings: (settings: WalletSettings) => void
   ) {
     this.fnSetTotalBalance = fnSetTotalBalance;
     this.fnSetAddressesWithBalance = fnSetAddressesWithBalance;
@@ -44,6 +48,7 @@ export default class RPC {
     this.fnSetAllAddresses = fnSetAllAddresses;
     this.fnSetInfo = fnSetInfo;
     this.fnSetZecPrice = fnSetZecPrice;
+    this.fnSetWalletSettings = fnSetWalletSettings;
     this.lastBlockHeight = 0;
 
     this.refreshTimerID = undefined;
@@ -134,6 +139,7 @@ export default class RPC {
       this.fetchTotalBalance();
       this.fetchTandZTransactions(latestBlockHeight);
       this.getZecPrice();
+      this.fetchWalletSettings();
 
       //console.log(`Finished update data at ${latestBlockHeight}`);
     }
@@ -194,6 +200,7 @@ export default class RPC {
       info.latestBlock = infoJSON.latest_block_height;
       info.connections = 1;
       info.version = `${infoJSON.vendor}/${infoJSON.git_commit.substring(0, 6)}/${infoJSON.version}`;
+      info.zcashdVersion = infoJSON.zcashd_version;
       info.verificationProgress = 1;
       info.currencyName = info.testnet ? "TAZ" : "ZEC";
       info.solps = 0;
@@ -226,6 +233,38 @@ export default class RPC {
     return address;
   }
 
+  async fetchWalletSettings() {
+    const download_memos_str = native.litelib_execute("getoption", "download_memos");
+    const download_memos = JSON.parse(download_memos_str).download_memos;
+
+    let spam_filter_threshold = "0";
+    try {
+      const spam_filter_str = native.litelib_execute("getoption", "spam_filter_threshold");
+      spam_filter_threshold = JSON.parse(spam_filter_str).spam_filter_threshold;
+      // console.log(`Spam filter threshold: ${spam_filter_threshold}`);
+
+      // If it is -1, i.e., it was not set, then set it to 50
+      if (spam_filter_threshold === "-1") {
+        await RPC.setWalletSettingOption("spam_filter_threshold", "50");
+      }
+    } catch (e) {
+      console.log(`Error getting spam filter threshold: ${e}`);
+    }
+
+    const wallet_settings = new WalletSettings();
+    wallet_settings.download_memos = download_memos;
+    wallet_settings.spam_filter_threshold = parseInt(spam_filter_threshold);
+
+    this.fnSetWalletSettings(wallet_settings);
+  }
+
+  static async setWalletSettingOption(name: string, value: string): Promise<string> {
+    const r = native.litelib_execute("setoption", `${name}=${value}`);
+
+    RPC.doSave();
+    return r;
+  }
+
   async fetchInfo(): Promise<number> {
     const info = RPC.getInfoObject();
 
@@ -241,12 +280,13 @@ export default class RPC {
 
     // Total Balance
     const balance = new TotalBalance();
-    balance.private = balanceJSON.zbalance / 10 ** 8;
+    balance.uabalance = balanceJSON.uabalance / 10 ** 8;
+    balance.zbalance = balanceJSON.zbalance / 10 ** 8;
     balance.transparent = balanceJSON.tbalance / 10 ** 8;
-    balance.verifiedPrivate = balanceJSON.verified_zbalance / 10 ** 8;
-    balance.unverifiedPrivate = balanceJSON.unverified_zbalance / 10 ** 8;
-    balance.spendablePrivate = balanceJSON.spendable_zbalance / 10 ** 8;
-    balance.total = balance.private + balance.transparent;
+    balance.verifiedZ = balanceJSON.verified_zbalance / 10 ** 8;
+    balance.unverifiedZ = balanceJSON.unverified_zbalance / 10 ** 8;
+    balance.spendableZ = balanceJSON.spendable_zbalance / 10 ** 8;
+    balance.total = balance.uabalance + balance.zbalance + balance.transparent;
     this.fnSetTotalBalance(balance);
 
     // Fetch pending notes and UTXOs
@@ -266,6 +306,17 @@ export default class RPC {
     });
 
     // Addresses with Balance. The lite client reports balances in zatoshi, so divide by 10^8;
+    const oaddresses = balanceJSON.ua_addresses
+      .map((o: any) => {
+        // If this has any unconfirmed txns, show that in the UI
+        const ab = new AddressBalance(o.address, o.balance / 10 ** 8);
+        if (pendingAddressBalances.has(ab.address)) {
+          ab.containsPending = true;
+        }
+        return ab;
+      })
+      .filter((ab: AddressBalance) => ab.balance > 0);
+
     const zaddresses = balanceJSON.z_addresses
       .map((o: any) => {
         // If this has any unconfirmed txns, show that in the UI
@@ -288,14 +339,17 @@ export default class RPC {
       })
       .filter((ab: AddressBalance) => ab.balance > 0);
 
-    const addresses = zaddresses.concat(taddresses);
+    const addresses = oaddresses.concat(zaddresses.concat(taddresses));
 
     this.fnSetAddressesWithBalance(addresses);
 
     // Also set all addresses
-    const allZAddresses = balanceJSON.z_addresses.map((o: any) => o.address);
-    const allTAddresses = balanceJSON.t_addresses.map((o: any) => o.address);
-    const allAddresses = allZAddresses.concat(allTAddresses);
+    const allOAddresses = balanceJSON.ua_addresses.map((o: any) => new AddressDetail(o.address, AddressType.unified));
+    const allZAddresses = balanceJSON.z_addresses.map((o: any) => new AddressDetail(o.address, AddressType.sapling));
+    const allTAddresses = balanceJSON.t_addresses.map(
+      (o: any) => new AddressDetail(o.address, AddressType.transparent)
+    );
+    const allAddresses = allOAddresses.concat(allZAddresses.concat(allTAddresses));
 
     this.fnSetAllAddresses(allAddresses);
   }
@@ -321,8 +375,11 @@ export default class RPC {
     return privKeyJSON[0].viewing_key;
   }
 
-  static createNewAddress(zaddress: boolean) {
-    const addrStr = native.litelib_execute("new", zaddress ? "z" : "t");
+  static createNewAddress(type: AddressType) {
+    const addrStr = native.litelib_execute(
+      "new",
+      type === AddressType.unified ? "u" : type === AddressType.sapling ? "z" : "t"
+    );
     const addrJSON = JSON.parse(addrStr);
 
     return addrJSON[0];

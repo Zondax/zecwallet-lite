@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-plusplus */
 /* eslint-disable react/prop-types */
-// @flow
+
 import React, { Component } from "react";
 import {
   AccordionItemButton,
@@ -81,9 +81,15 @@ export default class Home extends Component<Props> {
               currencyName={info.currencyName}
             />
             <BalanceBlock
-              topLabel="Shielded"
-              zecValue={totalBalance.private}
-              usdValue={Utils.getZecToUsdString(info.zecPrice, totalBalance.private)}
+              topLabel="Orchard"
+              zecValue={totalBalance.uabalance}
+              usdValue={Utils.getZecToUsdString(info.zecPrice, totalBalance.uabalance)}
+              currencyName={info.currencyName}
+            />
+            <BalanceBlock
+              topLabel="Sapling"
+              zecValue={totalBalance.zbalance}
+              usdValue={Utils.getZecToUsdString(info.zecPrice, totalBalance.zbalance)}
               currencyName={info.currencyName}
             />
             <BalanceBlock

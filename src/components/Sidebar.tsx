@@ -1,5 +1,5 @@
 /* eslint-disable no-else-return */
-// @flow
+
 /* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/prop-types */
 import React, { PureComponent, ReactElement, useState } from "react";
@@ -12,10 +12,11 @@ import styles from "./Sidebar.module.css";
 import cstyles from "./Common.module.css";
 import routes from "../constants/routes.json";
 import Logo from "../assets/img/logobig.png";
-import { Info, Transaction } from "./AppState";
+import { AddressDetail, Info, Transaction, WalletSettings } from "./AppState";
 import Utils, {WalletType} from "../utils/utils";
 import RPC from "../rpc";
 import { parseZcashURI, ZcashURITarget } from "../utils/uris";
+import WalletSettingsModal from "./WalletSettingsModal";
 
 const { ipcRenderer, remote } = window.require("electron");
 const fs = window.require("fs");
@@ -222,7 +223,7 @@ const SidebarMenuItem = ({ name, routeName, currentRoute, iconname }: SidebarMen
 type Props = {
   info: Info;
   setRescanning: (rescan: boolean, prevSyncId: number) => void;
-  addresses: string[];
+  addresses: AddressDetail[];
   transactions: Transaction[];
   setInfo: (info: Info) => void;
   clearTimers: () => void;
@@ -241,6 +242,8 @@ type Props = {
   encryptWallet: (p: string) => void;
   decryptWallet: (p: string) => Promise<boolean>;
   walletType: WalletType,
+  walletSettings: WalletSettings;
+  updateWalletSettings: () => Promise<void>;
 };
 
 type State = {
@@ -250,6 +253,7 @@ type State = {
   privKeyInputValue: string | null;
   exportPrivKeysModalIsOpen: boolean;
   exportedPrivKeys: string[];
+  walletSettingsModalIsOpen: boolean;
 };
 
 class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
@@ -262,6 +266,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       exportPrivKeysModalIsOpen: false,
       exportedPrivKeys: [],
       privKeyInputValue: null,
+      walletSettingsModalIsOpen: false,
     };
 
     this.setupMenuHandlers();
@@ -289,10 +294,10 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       openErrorModal(
         "Zecwallet Lite",
         <div className={cstyles.verticalflex}>
-          <div className={cstyles.margintoplarge}>Zecwallet Lite v1.7.20</div>
-          <div className={cstyles.margintoplarge}>Built with Electron. Copyright (c) 2018-2021, Aditya Kulkarni.</div>
+          <div className={cstyles.margintoplarge}>Zecwallet Lite v1.8.8</div>
+          <div className={cstyles.margintoplarge}>Built with Electron. Copyright (c) 2018-2022, Aditya Kulkarni.</div>
           <div className={cstyles.margintoplarge}>
-            The MIT License (MIT) Copyright (c) 2018-2021 Zecwallet
+            The MIT License (MIT) Copyright (c) 2018-2022 Zecwallet
             <br />
             <br />
             Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -520,7 +525,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       const {addresses, getPrivKeyAsString} = this.props;
       openPasswordAndUnlockIfNeeded(async () => {
         const privKeysPromise = addresses.map(async (a) => {
-          const privKey = await getPrivKeyAsString(a);
+          const privKey = getPrivKeyAsString(a.address);
           return `${privKey} #${a}`;
         });
         const exportedPrivKeys = await Promise.all(privKeysPromise);
@@ -533,6 +538,11 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     // View zcashd
     ipcRenderer.on("zcashd", () => {
       history.push(routes.ZCASHD);
+    });
+
+    // Wallet Settings
+    ipcRenderer.on("walletSettings", () => {
+      this.setState({ walletSettingsModalIsOpen: true });
     });
 
     // Connect mobile app
@@ -646,6 +656,18 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     this.setState({ uriModalIsOpen: false });
   };
 
+  closeWalletSettingsModal = () => {
+    this.setState({ walletSettingsModalIsOpen: false });
+  };
+
+  setWalletSpamFilterThreshold = async (threshold: number) => {
+    // Call the RPC to set the threshold as an option
+    await RPC.setWalletSettingOption("spam_filter_threshold", threshold.toString());
+
+    // Refresh the wallet settings
+    await this.props.updateWalletSettings();
+  };
+
   payURI = (uri: string) => {
     console.log(`Paying ${uri}`);
     const { openErrorModal, setSendTo, history } = this.props;
@@ -676,7 +698,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
   };
 
   render() {
-    const { location, info } = this.props;
+    const { location, info, walletSettings } = this.props;
     const {
       uriModalIsOpen,
       uriModalInputValue,
@@ -684,6 +706,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       //privKeyInputValue,
       exportPrivKeysModalIsOpen,
       exportedPrivKeys,
+      walletSettingsModalIsOpen,
     } = this.state;
 
     let state = "DISCONNECTED";
@@ -724,6 +747,13 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
           modalIsOpen={exportPrivKeysModalIsOpen}
           exportedPrivKeys={exportedPrivKeys}
           closeModal={this.closeExportPrivKeysModal}
+        />
+
+        <WalletSettingsModal
+          modalIsOpen={walletSettingsModalIsOpen}
+          closeModal={this.closeWalletSettingsModal}
+          walletSettings={walletSettings}
+          setWalletSpamFilterThreshold={this.setWalletSpamFilterThreshold}
         />
 
         <div className={[cstyles.center, styles.sidebarlogobg].join(" ")}>

@@ -1,8 +1,8 @@
-// @flow
 import Modal from "react-modal";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import cstyles from "./Common.module.css";
 import Utils from "../utils/utils";
+const { ipcRenderer } = window.require("electron");
 
 type ModalProps = {
   modalIsOpen: boolean;
@@ -11,12 +11,16 @@ type ModalProps = {
 };
 
 export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorModal }: ModalProps) {
-  //const store = new Store<Record<string, string>>();
-  //const currentServer = store.get('lightd/serveruri', '');
-  const currentServer = "";
-
   const [selected, setSelected] = useState("");
-  const [custom, setCustom] = useState(currentServer);
+  const [custom, setCustom] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const settings = await ipcRenderer.invoke("loadSettings");
+      const server = settings?.lwd?.serveruri || Utils.DEFAULT_SERVER;
+      setCustom(server);
+    })();
+  }, []);
 
   const switchServer = () => {
     let serveruri = selected;
@@ -24,7 +28,7 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
       serveruri = custom;
     }
 
-    //store.set('lightd/serveruri', serveruri);
+    ipcRenderer.invoke("saveSettings", { key: "lwd.serveruri", value: serveruri });
 
     closeModal();
 
@@ -41,8 +45,8 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
       overlayClassName={cstyles.modalOverlay}
     >
       <div className={[cstyles.verticalflex].join(" ")}>
-        <div className={cstyles.marginbottomlarge} style={{ textAlign: "center" }}>
-          Select LightwalletD server
+        <div className={cstyles.marginbottomlarge} style={{ textAlign: "left", marginLeft: 10 }}>
+          Switch LightwalletD server
         </div>
 
         <div className={[cstyles.well, cstyles.verticalflex].join(" ")}>

@@ -25,6 +25,9 @@ import AppState, {
   PasswordState,
   ServerSelectState,
   SendProgress,
+  AddressType,
+  AddressDetail,
+  WalletSettings,
 } from "./components/AppState";
 import RPC from "./rpc";
 import Utils, {WalletType} from "./utils/utils";
@@ -60,7 +63,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
       this.setTransactionList,
       this.setAllAddresses,
       this.setInfo,
-      this.setZecPrice
+      this.setZecPrice,
+      this.setWalletSettings
     );
   }
 
@@ -198,6 +202,14 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ totalBalance });
   };
 
+  setWalletSettings = (walletSettings: WalletSettings) => {
+    this.setState({ walletSettings });
+  };
+
+  updateWalletSettings = async () => {
+    await this.rpc.fetchWalletSettings();
+  };
+
   setAddressesWithBalances = (addressesWithBalance: AddressBalance[]) => {
     this.setState({ addressesWithBalance });
 
@@ -234,7 +246,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ transactions });
   };
 
-  setAllAddresses = (addresses: string[]) => {
+  setAllAddresses = (addresses: AddressDetail[]) => {
     this.setState({ addresses });
   };
 
@@ -412,10 +424,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ addressBook: newAddressBook });
   };
 
-  createNewAddress = async (zaddress: boolean) => {
+  createNewAddress = async (type: AddressType) => {
     this.openPasswordAndUnlockIfNeeded(async () => {
       // Create a new address
-      const newaddress = RPC.createNewAddress(zaddress);
+      const newaddress = RPC.createNewAddress(type);
       console.log(`Created new Address ${newaddress}`);
 
       // And then fetch the list of addresses again to refresh (totalBalance gets all addresses)
@@ -459,6 +471,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
       serverSelectState,
       passwordState,
       walletType,
+      walletSettings,
     } = this.state;
 
     const standardProps = {
@@ -515,6 +528,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
                 decryptWallet={this.decryptWallet}
                 openPassword={this.openPassword}
                 clearTimers={this.clearTimers}
+                walletSettings={walletSettings}
+                updateWalletSettings={this.updateWalletSettings}
                 {...standardProps}
               />
             </div>

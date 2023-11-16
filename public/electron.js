@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, shell, ipcMain } = require("electron");
 const isDev = require("electron-is-dev");
 const path = require("path");
+const settings = require("electron-settings");
 
 class MenuBuilder {
   mainWindow;
@@ -151,19 +152,7 @@ class MenuBuilder {
             this.mainWindow.webContents.send("zcashd");
           },
         },
-        {
-          label: "Connect Mobile App",
-          click: () => {
-            this.mainWindow.webContents.send("connectmobile");
-          },
-        },
         { type: "separator" },
-        {
-          label: "Encrypt Wallet",
-          click: () => {
-            this.mainWindow.webContents.send("encrypt");
-          },
-        },
         {
           label: "Remove Wallet Encryption",
           click: () => {
@@ -228,24 +217,18 @@ class MenuBuilder {
           },
         },
         {
+          label: "Wallet Settings",
+          click: () => {
+            this.mainWindow.webContents.send("walletSettings");
+          },
+        },
+        {
           label: "Server info",
           click: () => {
             this.mainWindow.webContents.send("zcashd");
           },
         },
-        {
-          label: "Connect Mobile App",
-          click: () => {
-            this.mainWindow.webContents.send("connectmobile");
-          },
-        },
         { type: "separator" },
-        {
-          label: "Encrypt Wallet",
-          click: () => {
-            this.mainWindow.webContents.send("encrypt");
-          },
-        },
         {
           label: "Remove Wallet Encryption",
           click: () => {
@@ -360,15 +343,15 @@ class MenuBuilder {
             },
           },
           {
-            label: "Server info",
+            label: "Wallet Settings",
             click: () => {
-              this.mainWindow.webContents.send("zcashd");
+              this.mainWindow.webContents.send("walletSettings");
             },
           },
           {
-            label: "Connect Mobile App",
+            label: "Server info",
             click: () => {
-              this.mainWindow.webContents.send("connectmobile");
+              this.mainWindow.webContents.send("zcashd");
             },
           },
           // {
@@ -378,12 +361,6 @@ class MenuBuilder {
           //   }
           // },
           { type: "separator" },
-          {
-            label: "Encrypt Wallet",
-            click: () => {
-              this.mainWindow.webContents.send("encrypt");
-            },
-          },
           {
             label: "Remove Wallet Encryption",
             click: () => {
@@ -466,6 +443,14 @@ function createWindow() {
   let waitingForClose = false;
   let proceedToClose = false;
 
+  ipcMain.handle("loadSettings", async () => {
+    return await settings.get("all");
+  });
+
+  ipcMain.handle("saveSettings", async (event, kv) => {
+    return await settings.set(`all.${kv.key}`, kv.value);
+  });
+
   mainWindow.on("close", (event) => {
     // If we are clear to close, then return and allow everything to close
     if (proceedToClose) {
@@ -488,7 +473,6 @@ function createWindow() {
       app.quit();
     });
 
-    // $FlowFixMe
     mainWindow.webContents.send("appquitting");
 
     // Failsafe, timeout after 5 seconds

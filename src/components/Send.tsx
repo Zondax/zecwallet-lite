@@ -6,14 +6,23 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable react/prop-types */
 /* eslint-disable max-classes-per-file */
-// @flow
+
 import React, { PureComponent } from "react";
 import Modal from "react-modal";
 import TextareaAutosize from "react-textarea-autosize";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import styles from "./Send.module.css";
 import cstyles from "./Common.module.css";
-import { ToAddr, AddressBalance, SendPageState, Info, AddressBookEntry, TotalBalance, SendProgress } from "./AppState";
+import {
+  ToAddr,
+  AddressBalance,
+  SendPageState,
+  Info,
+  AddressBookEntry,
+  TotalBalance,
+  SendProgress,
+  AddressDetail,
+} from "./AppState";
 import Utils, {WalletType} from "../utils/utils";
 import ScrollPane from "./ScrollPane";
 import ArrowUpLight from "../assets/img/arrow_up_dark.png";
@@ -58,9 +67,10 @@ const ToAddrBox = ({
   setSendButtonEnable,
   totalAmountAvailable,
 }: ToAddrBoxProps) => {
-  const isMemoDisabled = !Utils.isZaddr(toaddr.to);
+  const isMemoDisabled = !(Utils.isZaddr(toaddr.to) || Utils.isUnified(toaddr.to));
 
-  const addressIsValid = toaddr.to === "" || Utils.isZaddr(toaddr.to) || Utils.isTransparent(toaddr.to);
+  const addressIsValid =
+    toaddr.to === "" || Utils.isUnified(toaddr.to) || Utils.isZaddr(toaddr.to) || Utils.isTransparent(toaddr.to);
 
   let amountError = null;
   if (toaddr.amount) {
@@ -120,7 +130,7 @@ const ToAddrBox = ({
         </div>
         <input
           type="text"
-          placeholder="Z or T address"
+          placeholder="U | Z | T address"
           className={cstyles.inputbox}
           value={toaddr.to}
           onChange={(e) => updateToField(toaddr.id as number, e, null, null)}
@@ -150,7 +160,7 @@ const ToAddrBox = ({
 
         <Spacer />
 
-        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for z-addresses</div>}
+        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for sapling or UA addresses</div>}
 
         {!isMemoDisabled && (
           <div>
@@ -225,7 +235,7 @@ const ConfirmModalToAddr = ({ toaddr, info }: ConfirmModalToAddrProps) => {
 
   return (
     <div className={cstyles.well}>
-      <div className={[cstyles.flexspacebetween, cstyles.margintoplarge].join(" ")}>
+      <div className={[cstyles.flexspacebetween, cstyles.margintopsmall].join(" ")}>
         <div className={[styles.confirmModalAddress].join(" ")}>
           {Utils.splitStringIntoChunks(toaddr.to, 6).join(" ")}
         </div>
@@ -249,6 +259,7 @@ const ConfirmModalToAddr = ({ toaddr, info }: ConfirmModalToAddrProps) => {
 // Internal because we're using withRouter just below
 type ConfirmModalProps = {
   sendPageState: SendPageState;
+  totalBalance: TotalBalance;
   info: Info;
   sendTransaction: (sendJson: SendManyJson[], setSendProgress: (p?: SendProgress) => void) => Promise<string>;
   clearToAddrs: () => void;
@@ -261,6 +272,7 @@ type ConfirmModalProps = {
 
 const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = ({
   sendPageState,
+  totalBalance,
   info,
   sendTransaction,
   clearToAddrs,
@@ -274,6 +286,28 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
   const defaultFee = RPC.getDefaultFee();
   const sendingTotal = sendPageState.toaddrs.reduce((s, t) => s + t.amount, 0.0) + defaultFee;
   const { bigPart, smallPart } = Utils.splitZecAmountIntoBigSmall(sendingTotal);
+
+  // Determine the tx privacy level
+  let privacyLevel = "";
+  // 1. If we're sending to a t-address, it is "transparent"
+  const isToTransparent = sendPageState.toaddrs.map((to) => Utils.isTransparent(to.to)).reduce((p, c) => p || c, false);
+  if (isToTransparent) {
+    privacyLevel = "Transparent";
+  } else {
+    // 2. If we're sending to sapling or orchard, and don't have enough funds in the pool, it is "AmountsRevealed"
+    const toSapling = sendPageState.toaddrs
+      .map((to) => (Utils.isSapling(to.to) ? to.amount : 0))
+      .reduce((s, c) => s + c, 0);
+    const toOrchard = sendPageState.toaddrs
+      .map((to) => (Utils.isUnified(to.to) ? to.amount : 0))
+      .reduce((s, c) => s + c, 0);
+    if (toSapling > totalBalance.spendableZ || toOrchard > totalBalance.uabalance) {
+      privacyLevel = "AmountsRevealed";
+    } else {
+      // Else, it is a shielded transaction
+      privacyLevel = "Shielded";
+    }
+  }
 
   const sendButton = () => {
     // First, close the confirm modal.
@@ -367,6 +401,19 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
             ))}
           </div>
           <ConfirmModalToAddr toaddr={{ to: "Fee", amount: defaultFee, memo: "" }} info={info} />
+
+          <div className={cstyles.well}>
+            <div className={[cstyles.flexspacebetween, cstyles.margintoplarge].join(" ")}>
+              <div className={[styles.confirmModalAddress].join(" ")}>Privacy Level</div>
+              <div className={[cstyles.verticalflex, cstyles.right].join(" ")}>
+                <div className={cstyles.large}>
+                  <div>
+                    <span>{privacyLevel}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </ScrollPane>
 
         <div className={cstyles.buttoncontainer}>
@@ -385,7 +432,7 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
 const ConfirmModal = withRouter(ConfirmModalInternal);
 
 type Props = {
-  addresses: string[];
+  addresses: AddressDetail[];
   totalBalance: TotalBalance;
   addressBook: AddressBookEntry[];
   sendPageState: SendPageState;
@@ -573,13 +620,13 @@ export default class Send extends PureComponent<Props, SendState> {
       walletType
     } = this.props;
 
-    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendablePrivate;
-    const fromaddr = addresses.find((a) => Utils.isSapling(a)) as string;
+    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendableZ + totalBalance.uabalance;
+    const fromaddr = addresses.find((a) => Utils.isSapling(a.address))?.address || "";
 
     // If there are unverified funds, then show a tooltip
     let tooltip: string = "";
-    if (totalBalance.unverifiedPrivate) {
-      tooltip = `Waiting for confirmation of ZEC ${totalBalance.unverifiedPrivate} with 5 blocks (approx 6 minutes)`;
+    if (totalBalance.unverifiedZ) {
+      tooltip = `Waiting for confirmation of ZEC ${totalBalance.unverifiedZ} with 5 blocks (approx 6 minutes)`;
     }
 
     return (
@@ -647,6 +694,7 @@ export default class Send extends PureComponent<Props, SendState> {
 
           <ConfirmModal
             sendPageState={sendPageState}
+            totalBalance={totalBalance}
             info={info}
             sendTransaction={sendTransaction}
             openErrorModal={openErrorModal}

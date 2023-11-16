@@ -1670,7 +1670,7 @@ dependencies = [
  "reddsa",
  "serde",
  "subtle",
- "zcash_note_encryption 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a)",
 ]
 
 [[package]]
@@ -3326,8 +3326,8 @@ dependencies = [
  "serde_derive",
  "sha2 0.9.9",
  "tokio",
- "zcash_note_encryption 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "zcash_note_encryption 0.1.0 (git+https://github.com/adityapk00/librustzcash?rev=7183acd2fe12ebf201cae5b871166e356273c481)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a)",
  "zcash_primitives",
  "zcash_proofs",
 ]
@@ -3369,8 +3369,7 @@ dependencies = [
 [[package]]
 name = "zcash_note_encryption"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33f84ae538f05a8ac74c82527f06b77045ed9553a0871d9db036166a4c344e3a"
+source = "git+https://github.com/adityapk00/librustzcash?rev=7183acd2fe12ebf201cae5b871166e356273c481#7183acd2fe12ebf201cae5b871166e356273c481"
 dependencies = [
  "chacha20",
  "chacha20poly1305",
@@ -3381,7 +3380,7 @@ dependencies = [
 [[package]]
 name = "zcash_note_encryption"
 version = "0.1.0"
-source = "git+https://github.com/adityapk00/librustzcash?rev=7183acd2fe12ebf201cae5b871166e356273c481#7183acd2fe12ebf201cae5b871166e356273c481"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"
 dependencies = [
  "chacha20",
  "chacha20poly1305",
@@ -3536,3 +3535,33 @@ dependencies = [
  "byteorder",
  "thiserror",
 ]
+
+[[patch.unused]]
+name = "orchard"
+version = "0.2.0"
+source = "git+https://github.com/adityapk00/orchard?rev=0a960a380f4e9c3472c9260f3df61cd5e50d51b0#0a960a380f4e9c3472c9260f3df61cd5e50d51b0"
+
+[[patch.unused]]
+name = "zcash_address"
+version = "0.1.0"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"
+
+[[patch.unused]]
+name = "zcash_client_backend"
+version = "0.5.0"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"
+
+[[patch.unused]]
+name = "zcash_encoding"
+version = "0.1.0"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"
+
+[[patch.unused]]
+name = "zcash_primitives"
+version = "0.7.0"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"
+
+[[patch.unused]]
+name = "zcash_proofs"
+version = "0.7.1"
+source = "git+https://github.com/adityapk00/librustzcash?rev=adf49f8b848a5ac85e1476354614eeae9880206a#adf49f8b848a5ac85e1476354614eeae9880206a"

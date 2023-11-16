@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-use once_cell::sync::OnceCell;
 use zecwalletlitelib as zecwallet;
 
 use neon::{
