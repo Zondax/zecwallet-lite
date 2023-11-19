@@ -6,15 +6,15 @@ import {WalletType} from "../utils/utils";
 export enum AddressType {
   transparent,
   sapling,
-  unified,
+  // unified,
 }
 
 export class TotalBalance {
   // Total t address, confirmed and spendable
   transparent: number;
 
-  // Total orchard balance
-  uabalance: number;
+  // // Total orchard balance
+  // uabalance: number;
 
   // Total private, confirmed + unconfirmed
   zbalance: number;
@@ -32,7 +32,7 @@ export class TotalBalance {
   total: number;
 
   constructor() {
-    this.uabalance = 0;
+    // this.uabalance = 0;
     this.zbalance = 0;
     this.transparent = 0;
     this.verifiedZ = 0;
