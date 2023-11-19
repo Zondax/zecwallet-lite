@@ -80,12 +80,14 @@ export default class Home extends Component<Props> {
               usdValue={Utils.getZecToUsdString(info.zecPrice, totalBalance.total)}
               currencyName={info.currencyName}
             />
+            {/*
             <BalanceBlock
               topLabel="Orchard"
               zecValue={totalBalance.uabalance}
               usdValue={Utils.getZecToUsdString(info.zecPrice, totalBalance.uabalance)}
               currencyName={info.currencyName}
             />
+             */}
             <BalanceBlock
               topLabel="Sapling"
               zecValue={totalBalance.zbalance}

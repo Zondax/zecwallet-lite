@@ -23,13 +23,15 @@ import {
   SendProgress,
   AddressDetail,
 } from "./AppState";
-import Utils from "../utils/utils";
+import Utils, {WalletType} from "../utils/utils";
 import ScrollPane from "./ScrollPane";
 import ArrowUpLight from "../assets/img/arrow_up_dark.png";
 import { BalanceBlockHighlight } from "./BalanceBlocks";
 import RPC from "../rpc";
 import routes from "../constants/routes.json";
 import { parseZcashURI, ZcashURITarget } from "../utils/uris";
+import {ErrorModalData} from "./ErrorModal";
+import {getModalConfigByWalletType} from "../utils/modalConfigs";
 
 type OptionType = {
   value: string;
@@ -65,7 +67,7 @@ const ToAddrBox = ({
   setSendButtonEnable,
   totalAmountAvailable,
 }: ToAddrBoxProps) => {
-  const isMemoDisabled = !(Utils.isZaddr(toaddr.to) || Utils.isUnified(toaddr.to));
+  const isMemoDisabled = !(Utils.isZaddr(toaddr.to) /* || Utils.isUnified(toaddr.to) */);
 
   const addressIsValid =
     toaddr.to === "" || Utils.isUnified(toaddr.to) || Utils.isZaddr(toaddr.to) || Utils.isTransparent(toaddr.to);
@@ -128,7 +130,8 @@ const ToAddrBox = ({
         </div>
         <input
           type="text"
-          placeholder="U | Z | T address"
+          /* placeholder = "U | Z | T address" */
+          placeholder = "Z | T address"
           className={cstyles.inputbox}
           value={toaddr.to}
           onChange={(e) => updateToField(toaddr.id as number, e, null, null)}
@@ -158,7 +161,7 @@ const ToAddrBox = ({
 
         <Spacer />
 
-        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for sapling or UA addresses</div>}
+        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for sapling addresses</div>}
 
         {!isMemoDisabled && (
           <div>
@@ -263,7 +266,8 @@ type ConfirmModalProps = {
   clearToAddrs: () => void;
   closeModal: () => void;
   modalIsOpen: boolean;
-  openErrorModal: (title: string, body: string) => void;
+  walletType: WalletType;
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => void
   openPasswordAndUnlockIfNeeded: (successCallback: () => void | Promise<void>) => void;
 };
 
@@ -278,6 +282,7 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
   openErrorModal,
   openPasswordAndUnlockIfNeeded,
   history,
+                                                                                   walletType,
 }) => {
   const defaultFee = RPC.getDefaultFee();
   const sendingTotal = sendPageState.toaddrs.reduce((s, t) => s + t.amount, 0.0) + defaultFee;
@@ -294,10 +299,10 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
     const toSapling = sendPageState.toaddrs
       .map((to) => (Utils.isSapling(to.to) ? to.amount : 0))
       .reduce((s, c) => s + c, 0);
-    const toOrchard = sendPageState.toaddrs
-      .map((to) => (Utils.isUnified(to.to) ? to.amount : 0))
-      .reduce((s, c) => s + c, 0);
-    if (toSapling > totalBalance.spendableZ || toOrchard > totalBalance.uabalance) {
+    // const toOrchard = sendPageState.toaddrs
+    //   .map((to) => (Utils.isUnified(to.to) ? to.amount : 0))
+    //   .reduce((s, c) => s + c, 0);
+    if (toSapling > totalBalance.spendableZ /* | toOrchard > totalBalance.uabalance */) {
       privacyLevel = "AmountsRevealed";
     } else {
       // Else, it is a shielded transaction
@@ -309,14 +314,20 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
     // First, close the confirm modal.
     closeModal();
 
+    const modaleConfig = getModalConfigByWalletType(walletType)
+
     // This will be replaced by either a success TXID or error message that the user
     // has to close manually.
-    openErrorModal("Computing Transaction", "Please wait...This could take a while");
+    const description = walletType === "ledger" ? "Please, review the tx on your device, and accept it." : "Please wait...This could take a while"
+    openErrorModal("Computing Transaction", description, modaleConfig);
+
     const setSendProgress = (progress?: SendProgress) => {
       if (progress && progress.sendInProgress) {
+        const description = walletType === "ledger" ? "Please, check your device to the status. This could take a while." : `Step ${progress.progress} of ${progress.total}. ETA ${progress.etaSeconds}s`
         openErrorModal(
           `Computing Transaction`,
-          `Step ${progress.progress} of ${progress.total}. ETA ${progress.etaSeconds}s`
+          description,
+          modaleConfig
         );
       }
     };
@@ -429,7 +440,8 @@ type Props = {
   setSendTo: (targets: ZcashURITarget[] | ZcashURITarget) => void;
   sendTransaction: (sendJson: SendManyJson[], setSendProgress: (p?: SendProgress) => void) => Promise<string>;
   setSendPageState: (sendPageState: SendPageState) => void;
-  openErrorModal: (title: string, body: string) => void;
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => void
+  walletType: WalletType;
   info: Info;
   openPasswordAndUnlockIfNeeded: (successCallback: () => void) => void;
 };
@@ -606,9 +618,10 @@ export default class Send extends PureComponent<Props, SendState> {
       totalBalance,
       openErrorModal,
       openPasswordAndUnlockIfNeeded,
+      walletType
     } = this.props;
 
-    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendableZ + totalBalance.uabalance;
+    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendableZ /* + totalBalance.uabalance */;
     const fromaddr = addresses.find((a) => Utils.isSapling(a.address))?.address || "";
 
     // If there are unverified funds, then show a tooltip
@@ -654,11 +667,16 @@ export default class Send extends PureComponent<Props, SendState> {
                 />
               );
             })}
-            <div style={{ textAlign: "right" }}>
-              <button type="button" onClick={this.addToAddr}>
-                <i className={["fas", "fa-plus"].join(" ")} />
-              </button>
-            </div>
+            { (
+                    walletType === "memory"
+                ||  sendPageState.toaddrs.length < Utils.MAX_SEND_PAGES_ON_LEDGER_HD
+              ) &&
+                <div style={{textAlign: "right"}}>
+                  <button type="button" onClick={this.addToAddr}>
+                    <i className={["fas", "fa-plus"].join(" ")}/>
+                  </button>
+                </div>
+            }
           </ScrollPane>
 
           <div className={cstyles.center}>
@@ -681,6 +699,7 @@ export default class Send extends PureComponent<Props, SendState> {
             info={info}
             sendTransaction={sendTransaction}
             openErrorModal={openErrorModal}
+            walletType={walletType}
             closeModal={this.closeModal}
             modalIsOpen={modalIsOpen}
             clearToAddrs={this.clearToAddrs}

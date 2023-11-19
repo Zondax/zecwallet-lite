@@ -30,7 +30,7 @@ import AppState, {
   WalletSettings,
 } from "./components/AppState";
 import RPC from "./rpc";
-import Utils from "./utils/utils";
+import Utils, {WalletType} from "./utils/utils";
 import { ZcashURITarget } from "./utils/uris";
 import Zcashd from "./components/Zcashd";
 import AddressBook from "./components/Addressbook";
@@ -84,8 +84,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
     return this.state;
   };
 
-  openErrorModal = (title: string, body: string | JSX.Element) => {
-    const errorModalData = new ErrorModalData();
+  openErrorModal = (title: string, body: string | JSX.Element, customConfigs?: ErrorModalData) => {
+    let errorModalData = customConfigs || new ErrorModalData();
     errorModalData.modalIsOpen = true;
     errorModalData.title = title;
     errorModalData.body = body;
@@ -353,6 +353,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ info: newInfo });
   };
 
+  setWalletType = (walletType: WalletType) => {
+      this.setState({walletType})
+  }
+
   sendTransaction = async (sendJson: SendManyJson[], setSendProgress: (p?: SendProgress) => void): Promise<string> => {
     try {
       const txid = await this.rpc.sendTransaction(sendJson, setSendProgress);
@@ -466,6 +470,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
       errorModalData,
       serverSelectState,
       passwordState,
+      walletType,
       walletSettings,
     } = this.state;
 
@@ -473,8 +478,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
       openErrorModal: this.openErrorModal,
       closeErrorModal: this.closeErrorModal,
       setSendTo: this.setSendTo,
+      walletType,
       info,
       openPasswordAndUnlockIfNeeded: this.openPasswordAndUnlockIfNeeded,
+
     };
 
     const hasLatestBlock = info && info.latestBlock > 0 ? true : false;
@@ -485,6 +492,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
           title={errorModalData.title}
           body={errorModalData.body}
           modalIsOpen={errorModalData.modalIsOpen}
+          fnToExecute={errorModalData.fnToExecute}
+          shouldCloseOnEsc={errorModalData.shouldCloseOnEsc}
+          shouldCloseOnOverlayClick={errorModalData.shouldCloseOnOverlayClick}
+          showCloseBtn={errorModalData.showCloseBtn}
           closeModal={this.closeErrorModal}
         />
 
@@ -609,6 +620,9 @@ export default class RouteApp extends React.Component<Props, AppState> {
                     prevSyncId={prevSyncId}
                     setRescanning={this.setRescanning}
                     setInfo={this.setInfo}
+                    setWalletType={this.setWalletType}
+                    walletType={walletType}
+                    openErrorModal={this.openErrorModal}
                     openServerSelectModal={this.openServerSelectModal}
                   />
                 )}

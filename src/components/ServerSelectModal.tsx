@@ -17,7 +17,7 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
   useEffect(() => {
     (async () => {
       const settings = await ipcRenderer.invoke("loadSettings");
-      const server = settings?.lwd?.serveruri || "";
+      const server = settings?.lwd?.serveruri || Utils.DEFAULT_SERVER;
       setCustom(server);
     })();
   }, []);
@@ -37,12 +37,6 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
     }, 10);
   };
 
-  const servers = [
-    { name: "Zecwallet (Default)", uri: Utils.V3_LIGHTWALLETD },
-    { name: "Zecwallet Zebra (Experimental)", uri: "https://zebra-lwd.zecwallet.co:9067" },
-    { name: "Zcash Community", uri: "https://mainnet.lightwalletd.com:9067" },
-  ];
-
   return (
     <Modal
       isOpen={modalIsOpen}
@@ -56,7 +50,7 @@ export default function ServerSelectModal({ modalIsOpen, closeModal, openErrorMo
         </div>
 
         <div className={[cstyles.well, cstyles.verticalflex].join(" ")}>
-          {servers.map((s) => (
+          {Utils.SERVERS.map((s) => (
             <div style={{ margin: "10px" }} key={s.uri}>
               <input type="radio" name="server" value={s.uri} onClick={(e) => setSelected(e.currentTarget.value)} />
               {`${s.name} - ${s.uri}`}

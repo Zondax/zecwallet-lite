@@ -13,7 +13,7 @@ import cstyles from "./Common.module.css";
 import routes from "../constants/routes.json";
 import Logo from "../assets/img/logobig.png";
 import { AddressDetail, Info, Transaction, WalletSettings } from "./AppState";
-import Utils from "../utils/utils";
+import Utils, {WalletType} from "../utils/utils";
 import RPC from "../rpc";
 import { parseZcashURI, ZcashURITarget } from "../utils/uris";
 import WalletSettingsModal from "./WalletSettingsModal";
@@ -241,6 +241,7 @@ type Props = {
   lockWallet: () => void;
   encryptWallet: (p: string) => void;
   decryptWallet: (p: string) => Promise<boolean>;
+  walletType: WalletType,
   walletSettings: WalletSettings;
   updateWalletSettings: () => Promise<void>;
 };
@@ -271,10 +272,22 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     this.setupMenuHandlers();
   }
 
+  checkWalletType = () => {
+    const {walletType, openErrorModal} = this.props
+
+    if( walletType !== "memory"){
+      openErrorModal(
+        "Feature is not allowed",
+        "You cannot do this when you use a HD wallet"
+      );
+      return false;
+    }
+    return true;
+  }
+
   // Handle menu items
   setupMenuHandlers = async () => {
-    const { clearTimers, setSendTo, setInfo, setRescanning, history, openErrorModal, openPasswordAndUnlockIfNeeded } =
-      this.props;
+    const { clearTimers, setSendTo, setInfo, setRescanning, history, openErrorModal, openPasswordAndUnlockIfNeeded } = this.props;
 
     // About
     ipcRenderer.on("about", () => {
@@ -325,8 +338,11 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
     // Import a Private Key
     ipcRenderer.on("import", () => {
+      if(!this.checkWalletType()) return;
+
       this.openImportPrivKeyModal(null);
     });
+
 
     // Pay URI
     ipcRenderer.on("payuri", (event: any, uri: string) => {
@@ -335,6 +351,8 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
     // Export Seed
     ipcRenderer.on("seed", () => {
+      if(!this.checkWalletType()) return;
+
       openPasswordAndUnlockIfNeeded(() => {
         const seed = RPC.fetchSeed();
 
@@ -343,10 +361,10 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
           <div className={cstyles.verticalflex}>
             <div>
               This is your wallet&rsquo;s seed phrase. It can be used to recover your entire wallet.
-              <br />
+              <br/>
               PLEASE KEEP IT SAFE!
             </div>
-            <hr />
+            <hr/>
             <div
               style={{
                 wordBreak: "break-word",
@@ -355,11 +373,12 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
             >
               {seed}
             </div>
-            <hr />
+            <hr/>
           </div>
         );
       });
     });
+
 
     // Export All Transactions
     ipcRenderer.on("exportalltx", async () => {
@@ -402,7 +421,9 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
     // Encrypt wallet
     ipcRenderer.on("encrypt", async () => {
-      const { info, lockWallet, encryptWallet, openPassword } = this.props;
+      if(!this.checkWalletType()) return;
+
+      const {info, lockWallet, encryptWallet, openPassword} = this.props;
 
       if (info.encrypted && info.locked) {
         openErrorModal("Already Encrypted", "Your wallet is already encrypted and locked.");
@@ -421,7 +442,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
             openErrorModal("Cancelled", "Your wallet was not encrypted.");
           },
           <div>
-            Please enter a password to encrypt your wallet. <br />
+            Please enter a password to encrypt your wallet. <br/>
             WARNING: If you forget this password, the only way to recover your wallet is from the seed phrase.
           </div>
         );
@@ -430,7 +451,9 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
     // Remove wallet encryption
     ipcRenderer.on("decrypt", async () => {
-      const { info, decryptWallet, openPassword } = this.props;
+      if(!this.checkWalletType()) return;
+
+      const {info, decryptWallet, openPassword} = this.props;
 
       if (!info.encrypted) {
         openErrorModal("Not Encrypted", "Your wallet is not encrypted and ready for spending.");
@@ -457,9 +480,12 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       }
     });
 
+
     // Unlock wallet
     ipcRenderer.on("unlock", () => {
-      const { info } = this.props;
+      if(!this.checkWalletType()) return;
+
+      const {info} = this.props;
       if (!info.encrypted || !info.locked) {
         openErrorModal("Already Unlocked", "Your wallet is already unlocked for spending");
       } else {
@@ -468,6 +494,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
         });
       }
     });
+
 
     // Rescan
     ipcRenderer.on("rescan", () => {
@@ -489,10 +516,13 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
       history.push(routes.LOADING);
     });
 
+
     // Export all private keys
     ipcRenderer.on("exportall", async () => {
+      if(!this.checkWalletType()) return;
+
       // Get all the addresses and run export key on each of them.
-      const { addresses, getPrivKeyAsString } = this.props;
+      const {addresses, getPrivKeyAsString} = this.props;
       openPasswordAndUnlockIfNeeded(async () => {
         const privKeysPromise = addresses.map(async (a) => {
           const privKey = getPrivKeyAsString(a.address);
@@ -500,9 +530,10 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
         });
         const exportedPrivKeys = await Promise.all(privKeysPromise);
 
-        this.setState({ exportPrivKeysModalIsOpen: true, exportedPrivKeys });
+        this.setState({exportPrivKeysModalIsOpen: true, exportedPrivKeys});
       });
     });
+
 
     // View zcashd
     ipcRenderer.on("zcashd", () => {
@@ -516,6 +547,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
     // Connect mobile app
     ipcRenderer.on("connectmobile", () => {
+      if(!this.checkWalletType()) return;
       history.push(routes.CONNECTMOBILE);
     });
   };

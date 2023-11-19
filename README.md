@@ -6,7 +6,7 @@ Zecwallet-Lite is z-Addr first, Sapling compatible lightwallet client for Zcash.
 - Fully encrypt your private keys, using viewkeys to sync the blockchain
 
 ## Download
-Download compiled binaries from our [release page](https://github.com/adityapk00/zecwallet-lite/releases)
+Download compiled binaries from our [release page](https://github.com/Zondax/zecwallet-lite/releases)
 
 ## Privacy
 * While all the keys and transaction detection happens on the client, the server can learn what blocks contain your shielded transactions.
@@ -33,7 +33,7 @@ You need to have the following software installed before you can build Zecwallet
 * [Rust v1.40+](https://www.rust-lang.org/tools/install)
 
 ```
-git clone https://github.com/adityapk00/zecwallet-lite.git
+git clone https://github.com/Zondax/zecwallet-lite.git
 cd zecwallet-lite
 
 yarn install

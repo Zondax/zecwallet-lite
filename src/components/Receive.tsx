@@ -11,9 +11,11 @@ import {
 import QRCode from "qrcode.react";
 import styles from "./Receive.module.css";
 import cstyles from "./Common.module.css";
-import Utils from "../utils/utils";
+import Utils, { WalletType } from "../utils/utils";
 import { AddressBalance, Info, ReceivePageState, AddressBookEntry, AddressDetail, AddressType } from "./AppState";
 import ScrollPane from "./ScrollPane";
+import { ErrorModalData } from "./ErrorModal";
+import { getModalConfigByWalletType } from "../utils/modalConfigs";
 
 const { shell, clipboard } = window.require("electron");
 
@@ -26,6 +28,7 @@ type AddressBlockProps = {
   label?: string;
   fetchAndSetSinglePrivKey: (k: string) => void;
   fetchAndSetSingleViewKey: (k: string) => void;
+  walletType: WalletType
 };
 const AddressBlock = ({
   addressBalance,
@@ -36,6 +39,7 @@ const AddressBlock = ({
   fetchAndSetSinglePrivKey,
   viewKey,
   fetchAndSetSingleViewKey,
+  walletType,
 }: AddressBlockProps) => {
   const { address } = addressBalance;
 
@@ -82,7 +86,7 @@ const AddressBlock = ({
             <div className={[cstyles.padtopsmall].join(" ")}>{Utils.getZecToUsdString(zecPrice, balance)}</div>
 
             <div className={[cstyles.margintoplarge, cstyles.breakword].join(" ")}>
-              {privateKey && (
+              {privateKey && walletType === "memory" && (
                 <div>
                   <div className={[cstyles.sublight].join(" ")}>Private Key</div>
                   <div
@@ -127,7 +131,8 @@ const AddressBlock = ({
               >
                 {copied ? <span>Copied!</span> : <span>Copy Address</span>}
               </button>
-              {Utils.isZaddr(address) && !privateKey && (
+
+              {!privateKey && walletType === "memory" && Utils.isZaddr(address) && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -137,7 +142,7 @@ const AddressBlock = ({
                 </button>
               )}
 
-              {Utils.isZaddr(address) && !viewKey && (
+              {Utils.isZaddr(address) && !viewKey && walletType === "memory" && (
                 <button
                   className={[cstyles.primarybutton].join(" ")}
                   type="button"
@@ -170,6 +175,7 @@ type Props = {
   addressesWithBalance: AddressBalance[];
   addressBook: AddressBookEntry[];
   info: Info;
+  walletType: WalletType;
   addressPrivateKeys: Map<string, string>;
   addressViewKeys: Map<string, string>;
   receivePageState: ReceivePageState;
@@ -177,6 +183,7 @@ type Props = {
   fetchAndSetSingleViewKey: (k: string) => void;
   createNewAddress: (t: AddressType) => void;
   rerenderKey: number;
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
 
 export default class Receive extends Component<Props> {
@@ -193,6 +200,7 @@ export default class Receive extends Component<Props> {
       fetchAndSetSingleViewKey,
       createNewAddress,
       rerenderKey,
+      walletType,
     } = this.props;
 
     // Convert the addressBalances into a map.
@@ -202,19 +210,19 @@ export default class Receive extends Component<Props> {
       return m;
     }, new Map());
 
-    const uaddrs = addresses
-      .filter((a) => a.type === AddressType.unified)
-      .slice(0, 100)
-      .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0));
-    let defaultUaddr = uaddrs.length ? uaddrs[0].address : "";
-    if (receivePageState && Utils.isUnified(receivePageState.newAddress)) {
-      defaultUaddr = receivePageState.newAddress;
+    // const uaddrs = addresses
+    //   .filter((a) => a.type === AddressType.unified)
+    //   .slice(0, 100)
+    //   .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0));
+    // let defaultUaddr = uaddrs.length ? uaddrs[0].address : "";
+    // if (receivePageState && Utils.isUnified(receivePageState.newAddress)) {
+    //   defaultUaddr = receivePageState.newAddress;
 
-      // move this address to the front, since the scrollbar will reset when we re-render
-      uaddrs.sort((x, y) => {
-        return x.address === defaultUaddr ? -1 : y.address === defaultUaddr ? 1 : 0;
-      });
-    }
+    //   // move this address to the front, since the scrollbar will reset when we re-render
+    //   uaddrs.sort((x, y) => {
+    //     return x.address === defaultUaddr ? -1 : y.address === defaultUaddr ? 1 : 0;
+    //   });
+    // }
 
     const zaddrs = addresses
       .filter((a) => Utils.isSapling(a.address))
@@ -259,11 +267,12 @@ export default class Receive extends Component<Props> {
         <div className={styles.receivecontainer}>
           <Tabs>
             <TabList>
-              <Tab>Unified</Tab>
+              {/* <Tab>Unified</Tab> */}
               <Tab>Shielded</Tab>
               <Tab>Transparent</Tab>
             </TabList>
 
+            {/*
             <TabPanel key={`ua${rerenderKey}`}>
               <ScrollPane offsetHeight={100}>
                 <Accordion preExpanded={[defaultUaddr]}>
@@ -278,6 +287,7 @@ export default class Receive extends Component<Props> {
                       viewKey={addressViewKeys.get(a.address)}
                       fetchAndSetSinglePrivKey={fetchAndSetSinglePrivKey}
                       fetchAndSetSingleViewKey={fetchAndSetSingleViewKey}
+                      walletType={walletType}
                     />
                   ))}
                 </Accordion>
@@ -291,6 +301,7 @@ export default class Receive extends Component<Props> {
                 </button>
               </ScrollPane>
             </TabPanel>
+            */}
 
             <TabPanel key={`z${rerenderKey}`}>
               {/* Change the hardcoded height */}
@@ -307,13 +318,18 @@ export default class Receive extends Component<Props> {
                       viewKey={addressViewKeys.get(a.address)}
                       fetchAndSetSinglePrivKey={fetchAndSetSinglePrivKey}
                       fetchAndSetSingleViewKey={fetchAndSetSingleViewKey}
+                      walletType={walletType}
                     />
                   ))}
                 </Accordion>
 
                 <button
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
-                  onClick={() => createNewAddress(AddressType.sapling)}
+                  onClick={() => {
+                    const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
+                    const configs = getModalConfigByWalletType(walletType, () => createNewAddress(AddressType.sapling))
+                    this.props.openErrorModal("Creating new address", description, configs)
+                  }}
                   type="button"
                 >
                   New Sapling Address
@@ -335,6 +351,7 @@ export default class Receive extends Component<Props> {
                       viewKey={addressViewKeys.get(a.address)}
                       fetchAndSetSinglePrivKey={fetchAndSetSinglePrivKey}
                       fetchAndSetSingleViewKey={fetchAndSetSingleViewKey}
+                      walletType={walletType}
                     />
                   ))}
                 </Accordion>

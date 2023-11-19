@@ -268,13 +268,13 @@ class MenuBuilder {
         {
           label: "Check github.com for updates",
           click() {
-            shell.openExternal("https://github.com/adityapk00/zecwallet-lite/releases");
+            shell.openExternal("https://github.com/Zondax/zecwallet-lite/releases");
           },
         },
         {
           label: "File a bug...",
           click() {
-            shell.openExternal("https://github.com/adityapk00/zecwallet-lite/issues");
+            shell.openExternal("https://github.com/Zondax/zecwallet-lite/issues");
           },
         },
       ],
@@ -393,13 +393,13 @@ class MenuBuilder {
           {
             label: "Check github.com for updates",
             click() {
-              shell.openExternal("https://github.com/adityapk00/zecwallet-lite/releases");
+              shell.openExternal("https://github.com/Zondax/zecwallet-lite/releases");
             },
           },
           {
             label: "File a bug...",
             click() {
-              shell.openExternal("https://github.com/adityapk00/zecwallet-lite/issues");
+              shell.openExternal("https://github.com/Zondax/zecwallet-lite/issues");
             },
           },
         ],

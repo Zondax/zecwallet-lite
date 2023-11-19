@@ -12,7 +12,8 @@ import RPC from "../rpc";
 import cstyles from "./Common.module.css";
 import styles from "./LoadingScreen.module.css";
 import Logo from "../assets/img/logobig.png";
-import Utils from "../utils/utils";
+import Utils, { WalletType} from "../utils/utils";
+import {ErrorModalData} from "./ErrorModal";
 
 const { ipcRenderer } = window.require("electron");
 const fs = window.require("fs");
@@ -39,7 +40,13 @@ class LoadingScreenState {
   getinfoRetryCount: number;
 
   constructor() {
-    this.currentStatus = "Loading...";
+    this.currentStatus = <div>
+      <div>Loading...</div>
+      <br/>
+      <div>If a Ledger is present, please make sure it is unlocked and Zcash app opened.</div>
+      <div>Requests will be sent to recover addresses created previously.</div>
+      <div>It can take several minutes, so please be patient.</div>
+    </div>;
     this.currentStatusIsError = false;
     this.loadingDone = false;
     this.rpcConfig = null;
@@ -58,8 +65,12 @@ type Props = {
   prevSyncId: number;
   setRescanning: (rescan: boolean, prevSyncId: number) => void;
   setInfo: (info: Info) => void;
+  setWalletType: (type: WalletType) => void;
   openServerSelectModal: () => void;
+  walletType: WalletType
+  openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
+
 class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreenState> {
   constructor(props: Props & RouteComponentProps) {
     super(props);
@@ -124,7 +135,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
   loadServerURI = async () => {
     // Try to read the default server
     const settings = await ipcRenderer.invoke("loadSettings");
-    let server = settings?.lwd?.serveruri || Utils.V3_LIGHTWALLETD;
+    let server = settings?.lwd?.serveruri || Utils.DEFAULT_SERVER;
 
     // Automatically upgrade to v2 server if you had the previous v1 server.
     if (server === Utils.V1_LIGHTWALLETD || server === Utils.V2_LIGHTWALLETD) {
@@ -154,14 +165,14 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     } else {
       try {
         const result = native.litelib_initialize_existing(url);
-        console.log(`Intialization: ${result}`);
-        if (result !== "OK") {
+        console.log(`Intialization: ${JSON.stringify(result)}`);
+        if (result.error) {
           this.setState({
             currentStatus: (
               <span>
                 Error Initializing Lightclient
                 <br />
-                {result}
+                {result.error}
               </span>
             ),
             currentStatusIsError: true,
@@ -170,6 +181,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
           return;
         }
 
+        this.props.setWalletType(result.walletType)
         this.getInfo();
       } catch (e) {
         console.log("Error initializing", e);
@@ -221,7 +233,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
   runSyncStatusPoller = (prevSyncId: number) => {
     const me = this;
 
-    const { setRPCConfig, setInfo, setRescanning } = this.props;
+    const { setRPCConfig, setInfo, setRescanning, walletType } = this.props;
     const { url } = this.state;
 
     const info = RPC.getInfoObject();
@@ -294,6 +306,18 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                 <br />
                 <br />
                 Please wait... This could take several minutes or hours
+                <br/>
+                <br/>
+                {
+                  walletType === "ledger"
+                  ?
+                    <div>
+                      <div>Please, make sure the device is unlocked and Zcash app opened.</div>
+                      <div>Many requests will be sent to read some transactions from chain.</div>
+                    </div>
+                  :
+                    null
+                }
               </div>
             );
             me.setState({ currentStatus });
@@ -303,15 +327,30 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     }, 1000);
   };
 
+  connectToHDWallet = () => {
+    const { url, birthday } = this.state;
+    const result = native.litelib_initialize_ledger(url, birthday);
+
+    this.props.setWalletType("ledger");
+    this.setState({  newWalletError: null, walletScreen: 2})
+
+    if (result.startsWith("Error")) {
+      this.setState({ newWalletError: result });
+    }
+  };
+
   createNewWallet = () => {
     const { url } = this.state;
     const result = native.litelib_initialize_new(url);
+
+    this.props.setWalletType("memory");
+    this.setState({  newWalletError: null, walletScreen: 2})
 
     if (result.startsWith("Error")) {
       this.setState({ newWalletError: result });
     } else {
       const r = JSON.parse(result);
-      this.setState({ walletScreen: 2, seed: r.seed });
+      this.setState({ seed: r.seed });
     }
   };
 
@@ -362,7 +401,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
     const { loadingDone, currentStatus, currentStatusIsError, walletScreen, newWalletError, seed, birthday } =
       this.state;
 
-    const { openServerSelectModal } = this.props;
+    const { openServerSelectModal, walletType } = this.props;
 
     // If still loading, show the status
     if (!loadingDone) {
@@ -417,6 +456,18 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                   </div>
                 </div>
                 <div className={[cstyles.verticalflex, cstyles.margintoplarge].join(" ")}>
+                  <div className={[cstyles.large, cstyles.highlight].join(" ")}>Connect to Ledger</div>
+                  <div className={cstyles.padtopsmall}>
+                    Connect to a Ledger wallet to use your seed from it.
+                  </div>
+                  <div className={cstyles.margintoplarge}>
+                    <button type="button" className={cstyles.primarybutton} onClick={() => {
+                      this.setState({ walletScreen: 4 });}}>
+                      Connect
+                    </button>
+                  </div>
+                </div>
+                <div className={[cstyles.verticalflex, cstyles.margintoplarge].join(" ")}>
                   <div className={[cstyles.large, cstyles.highlight].join(" ")}>Restore Wallet From Seed</div>
                   <div className={cstyles.padtopsmall}>
                     If you already have a seed phrase, you can restore it to this wallet. This will rescan the
@@ -441,11 +492,17 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                 <div className={cstyles.verticalflex}>
                   {newWalletError && (
                     <div>
-                      <div className={[cstyles.large, cstyles.highlight].join(" ")}>Error Creating New Wallet</div>
-                      <div className={cstyles.padtopsmall}>There was an error creating a new wallet</div>
+                      <div className={[cstyles.large, cstyles.highlight].join(" ")}>{"Error Creating New Wallet"}</div>
+                      <div className={cstyles.padtopsmall}>{walletType === "memory" ? "There was an error creating a new wallet" : "There was an error communicating to device"}</div>
                       <hr />
                       <div className={cstyles.padtopsmall}>{newWalletError}</div>
                       <hr />
+                      <div className={cstyles.margintoplarge}>
+                        <button type="button" className={cstyles.primarybutton} onClick={() => {
+                          this.setState({ walletScreen: 1 });}}>
+                          Back
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -453,11 +510,19 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                     <div>
                       <div className={[cstyles.large, cstyles.highlight].join(" ")}>Your New Wallet</div>
                       <div className={cstyles.padtopsmall}>
-                        This is your new wallet. Below is your seed phrase. PLEASE STORE IT CAREFULLY! The seed phrase
-                        is the only way to recover your funds and transactions.
+                        {
+                          walletType === "memory"
+                            ?
+                              "This is your new wallet. Below is your seed phrase. PLEASE STORE IT CAREFULLY! The seed phrase is the only way to recover your funds and transactions."
+                            : "Your seed is SAFE and never left your device. We just interacted with your device to check everything is ready."
+                        }
                       </div>
-                      <hr />
-                      <div className={cstyles.padtopsmall}>{seed}</div>
+                      {walletType === "memory" &&
+                        <div>
+                          <hr />
+                          <div className={cstyles.padtopsmall}>{seed}</div>
+                        </div>
+                      }
                       <hr />
                       <div className={cstyles.margintoplarge}>
                         <button type="button" className={cstyles.primarybutton} onClick={this.startNewWallet}>
@@ -519,6 +584,42 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {walletScreen === 4 && (
+            <div>
+              <div>
+                <img src={Logo} width="200px;" alt="Logo" />
+              </div>
+              <div className={[cstyles.well, styles.newwalletcontainer].join(" ")}>
+                <div className={cstyles.verticalflex}>
+                    <div>
+                      <div className={[cstyles.large, cstyles.margintoplarge].join(" ")}>
+                        Wallet Birthday. If you don&rsquo;t know this, it is OK to enter &lsquo;0&rsquo;
+                      </div>
+                      <input
+                        type="number"
+                        className={cstyles.inputbox}
+                        value={birthday}
+                        onChange={(e) => this.updateBirthday(e)}
+                      />
+
+                      <div className={cstyles.margintoplarge}>
+                        <button type="button" className={cstyles.primarybutton} onClick={() => {
+                          const description = <div><div>Please, review and accept the requests on your device.</div><div>It can take several iterations to complete the whole process.</div></div>
+                          const configs = new ErrorModalData()
+                          configs.fnToExecute = () => this.connectToHDWallet()
+                          configs.showCloseBtn = false
+                          this.props.openErrorModal("Connecting to Ledger", description, configs)
+                        }}>
+                          Connect
+                        </button>
+                      </div>
+                    </div>
                 </div>
               </div>
             </div>

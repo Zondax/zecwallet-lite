@@ -280,13 +280,13 @@ export default class RPC {
 
     // Total Balance
     const balance = new TotalBalance();
-    balance.uabalance = balanceJSON.uabalance / 10 ** 8;
+    // balance.uabalance = balanceJSON.uabalance / 10 ** 8;
     balance.zbalance = balanceJSON.zbalance / 10 ** 8;
     balance.transparent = balanceJSON.tbalance / 10 ** 8;
     balance.verifiedZ = balanceJSON.verified_zbalance / 10 ** 8;
     balance.unverifiedZ = balanceJSON.unverified_zbalance / 10 ** 8;
     balance.spendableZ = balanceJSON.spendable_zbalance / 10 ** 8;
-    balance.total = balance.uabalance + balance.zbalance + balance.transparent;
+    balance.total = /* balance.uabalance + */ balance.zbalance + balance.transparent;
     this.fnSetTotalBalance(balance);
 
     // Fetch pending notes and UTXOs
@@ -306,16 +306,16 @@ export default class RPC {
     });
 
     // Addresses with Balance. The lite client reports balances in zatoshi, so divide by 10^8;
-    const oaddresses = balanceJSON.ua_addresses
-      .map((o: any) => {
-        // If this has any unconfirmed txns, show that in the UI
-        const ab = new AddressBalance(o.address, o.balance / 10 ** 8);
-        if (pendingAddressBalances.has(ab.address)) {
-          ab.containsPending = true;
-        }
-        return ab;
-      })
-      .filter((ab: AddressBalance) => ab.balance > 0);
+    // const oaddresses = balanceJSON.ua_addresses
+    //   .map((o: any) => {
+    //     // If this has any unconfirmed txns, show that in the UI
+    //     const ab = new AddressBalance(o.address, o.balance / 10 ** 8);
+    //     if (pendingAddressBalances.has(ab.address)) {
+    //       ab.containsPending = true;
+    //     }
+    //     return ab;
+    //   })
+    //   .filter((ab: AddressBalance) => ab.balance > 0);
 
     const zaddresses = balanceJSON.z_addresses
       .map((o: any) => {
@@ -339,17 +339,17 @@ export default class RPC {
       })
       .filter((ab: AddressBalance) => ab.balance > 0);
 
-    const addresses = oaddresses.concat(zaddresses.concat(taddresses));
+    const addresses = [/* oaddresses, */ zaddresses, taddresses].flat();
 
     this.fnSetAddressesWithBalance(addresses);
 
     // Also set all addresses
-    const allOAddresses = balanceJSON.ua_addresses.map((o: any) => new AddressDetail(o.address, AddressType.unified));
+    // const allOAddresses = balanceJSON.ua_addresses.map((o: any) => new AddressDetail(o.address, AddressType.unified));
     const allZAddresses = balanceJSON.z_addresses.map((o: any) => new AddressDetail(o.address, AddressType.sapling));
     const allTAddresses = balanceJSON.t_addresses.map(
       (o: any) => new AddressDetail(o.address, AddressType.transparent)
     );
-    const allAddresses = allOAddresses.concat(allZAddresses.concat(allTAddresses));
+    const allAddresses = [/* allOAddresses, */ allZAddresses, allTAddresses].flat();
 
     this.fnSetAllAddresses(allAddresses);
   }
@@ -378,7 +378,7 @@ export default class RPC {
   static createNewAddress(type: AddressType) {
     const addrStr = native.litelib_execute(
       "new",
-      type === AddressType.unified ? "u" : type === AddressType.sapling ? "z" : "t"
+      /* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t"
     );
     const addrJSON = JSON.parse(addrStr);
 

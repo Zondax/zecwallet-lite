@@ -3,15 +3,35 @@
 /* eslint-disable no-plusplus */
 export const NO_CONNECTION: string = "Could not connect to zcashd";
 
+export type WalletType = "ledger" | "memory"
+
 export default class Utils {
   // v1 LightwalletD
-  static V1_LIGHTWALLETD: string = "https://lightwalletd.zecwallet.co:1443";
+  static V1_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   // v2 LightwalletD
-  static V2_LIGHTWALLETD: string = "https://lwdv2.zecwallet.co:1443";
+  static V2_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   // v3 LightwalletD
-  static V3_LIGHTWALLETD: string = "https://lwdv3.zecwallet.co";
+  static V3_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
+
+  static SERVERS = [
+    { name: "Zecwallet (Default)", uri: Utils.V3_LIGHTWALLETD },
+    { name: "Zecwallet (Backup)", uri: Utils.V2_LIGHTWALLETD },
+    { name: "ZcashFR (Community)", uri: "https://lightd-main.zcashfr.io:443" },
+    { name: "ZCash Infra USA", uri: "https://lwd1.zcash-infra.com:9067" },
+    { name: "ZCash Infra HK", uri: "https://lwd2.zcash-infra.com:9067" },
+    { name: "ZCash Infra USA", uri: "https://lwd3.zcash-infra.com:9067" },
+    { name: "ZCash Infra Canada", uri: "https://lwd4.zcash-infra.com:9067" },
+    { name: "ZCash Infra France", uri: "https://lwd5.zcash-infra.com:9067" },
+    { name: "ZCash Infra USA", uri: "https://lwd6.zcash-infra.com:9067" },
+    { name: "ZCash Infra Netherlands", uri: "https://lwd7.zcash-infra.com:9067" },
+    { name: "ZCash Infra UK", uri: "https://lwd8.zcash-infra.com:9067" },
+  ];
+
+  static DEFAULT_SERVER = Utils.SERVERS[4].uri;
+
+  static MAX_SEND_PAGES_ON_LEDGER_HD: number = 5;
 
   static isUnified(addr: string): boolean {
     if (!addr) return false;

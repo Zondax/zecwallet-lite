@@ -15,10 +15,7 @@ default-features = false
 features = ["napi-6"]
 
 [dependencies]
-zecwalletlitelib = { git = "https://github.com/adityapk00/zecwallet-light-cli", rev = "fd5d11f0f28e0f1628ea8fdad0cce16d50e6bb98" }
-#zecwalletlitelib = { path = "../../zecwallet-light-cli/lib" }
-lazy_static = "1.4.0"
-
+zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", rev = "a580aa7826517b2fa0f8b06d4cb850de9a4a2f18" }
 
 [patch.crates-io]
 zcash_address = { git = "https://github.com/adityapk00/librustzcash", rev = "adf49f8b848a5ac85e1476354614eeae9880206a"}
