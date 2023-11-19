@@ -67,7 +67,7 @@ const ToAddrBox = ({
   setSendButtonEnable,
   totalAmountAvailable,
 }: ToAddrBoxProps) => {
-  const isMemoDisabled = !(Utils.isZaddr(toaddr.to) || Utils.isUnified(toaddr.to));
+  const isMemoDisabled = !(Utils.isZaddr(toaddr.to) /* || Utils.isUnified(toaddr.to) */);
 
   const addressIsValid =
     toaddr.to === "" || Utils.isUnified(toaddr.to) || Utils.isZaddr(toaddr.to) || Utils.isTransparent(toaddr.to);
@@ -130,7 +130,8 @@ const ToAddrBox = ({
         </div>
         <input
           type="text"
-          placeholder="U | Z | T address"
+          /* placeholder = "U | Z | T address" */
+          placeholder = "Z | T address"
           className={cstyles.inputbox}
           value={toaddr.to}
           onChange={(e) => updateToField(toaddr.id as number, e, null, null)}
@@ -160,7 +161,7 @@ const ToAddrBox = ({
 
         <Spacer />
 
-        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for sapling or UA addresses</div>}
+        {isMemoDisabled && <div className={cstyles.sublight}>Memos only for sapling addresses</div>}
 
         {!isMemoDisabled && (
           <div>
@@ -298,10 +299,10 @@ const ConfirmModalInternal: React.FC<RouteComponentProps & ConfirmModalProps> = 
     const toSapling = sendPageState.toaddrs
       .map((to) => (Utils.isSapling(to.to) ? to.amount : 0))
       .reduce((s, c) => s + c, 0);
-    const toOrchard = sendPageState.toaddrs
-      .map((to) => (Utils.isUnified(to.to) ? to.amount : 0))
-      .reduce((s, c) => s + c, 0);
-    if (toSapling > totalBalance.spendableZ || toOrchard > totalBalance.uabalance) {
+    // const toOrchard = sendPageState.toaddrs
+    //   .map((to) => (Utils.isUnified(to.to) ? to.amount : 0))
+    //   .reduce((s, c) => s + c, 0);
+    if (toSapling > totalBalance.spendableZ /* | toOrchard > totalBalance.uabalance */) {
       privacyLevel = "AmountsRevealed";
     } else {
       // Else, it is a shielded transaction
@@ -620,7 +621,7 @@ export default class Send extends PureComponent<Props, SendState> {
       walletType
     } = this.props;
 
-    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendableZ + totalBalance.uabalance;
+    const totalAmountAvailable = totalBalance.transparent + totalBalance.spendableZ /* + totalBalance.uabalance */;
     const fromaddr = addresses.find((a) => Utils.isSapling(a.address))?.address || "";
 
     // If there are unverified funds, then show a tooltip
