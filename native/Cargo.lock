@@ -1313,7 +1313,7 @@ dependencies = [
 [[package]]
 name = "ledger-zcash"
 version = "0.6.0"
-source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=324a0851113df4ea77457b5711392beabd021407#324a0851113df4ea77457b5711392beabd021407"
+source = "git+https://github.com/Zondax/ledger-zcash-rs?tag=v1.0.0#7cd10f3ed49c4cd24933e5638f6204e82348a217"
 dependencies = [
  "arrayvec",
  "byteorder",
@@ -3302,7 +3302,7 @@ dependencies = [
 [[package]]
 name = "zcash-hsmbuilder"
 version = "0.4.0"
-source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=324a0851113df4ea77457b5711392beabd021407#324a0851113df4ea77457b5711392beabd021407"
+source = "git+https://github.com/Zondax/ledger-zcash-rs?tag=v1.0.0#7cd10f3ed49c4cd24933e5638f6204e82348a217"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -3453,7 +3453,7 @@ dependencies = [
 [[package]]
 name = "zecwalletlitelib"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/zecwallet-light-cli?rev=a580aa7826517b2fa0f8b06d4cb850de9a4a2f18#a580aa7826517b2fa0f8b06d4cb850de9a4a2f18"
+source = "git+https://github.com/Zondax/zecwallet-light-cli?tag=v1.9.0-ledger#d1f7929a7bd746ee23b2ebcea05e545a935f5e4c"
 dependencies = [
  "arr_macro",
  "async-trait",
