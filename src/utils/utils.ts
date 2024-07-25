@@ -38,11 +38,6 @@ export default class Utils {
     return addr.startsWith("u");
   }
 
-  static isUnified(addr: string): boolean {
-    if (!addr) return false;
-    return addr.startsWith("u");
-  }
-
   static isSapling(addr: string): boolean {
     if (!addr) return false;
     return new RegExp("^z[a-z0-9]{77}$").test(addr) || new RegExp("^ztestsapling[a-z0-9]{76}$").test(addr);
