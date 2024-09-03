@@ -424,10 +424,10 @@ export default class RouteApp extends React.Component<Props, AppState> {
     this.setState({ addressBook: newAddressBook });
   };
 
-  createNewAddress = async (type: AddressType) => {
+  createNewAddress = async (type: AddressType, optionalPath: string) => {
     this.openPasswordAndUnlockIfNeeded(async () => {
       // Create a new address
-      const newaddress = RPC.createNewAddress(type);
+      const newaddress = RPC.createNewAddress(type, optionalPath);
       console.log(`Created new Address ${newaddress}`);
 
       // And then fetch the list of addresses again to refresh (totalBalance gets all addresses)

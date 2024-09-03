@@ -181,7 +181,7 @@ type Props = {
   receivePageState: ReceivePageState;
   fetchAndSetSinglePrivKey: (k: string) => void;
   fetchAndSetSingleViewKey: (k: string) => void;
-  createNewAddress: (t: AddressType) => void;
+  createNewAddress: (t: AddressType, optionalPath: string) => void;
   rerenderKey: number;
   openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
@@ -327,7 +327,7 @@ export default class Receive extends Component<Props> {
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
                   onClick={() => {
                     const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
-                    const configs = getModalConfigByWalletType(walletType, () => createNewAddress(AddressType.sapling))
+                    const configs = getModalConfigByWalletType(walletType, () => createNewAddress(AddressType.sapling, ""))
                     this.props.openErrorModal("Creating new address", description, configs)
                   }}
                   type="button"
@@ -359,7 +359,7 @@ export default class Receive extends Component<Props> {
                 <button
                   className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
                   type="button"
-                  onClick={() => createNewAddress(AddressType.transparent)}
+                  onClick={() => createNewAddress(AddressType.transparent, "")}
                 >
                   New Transparent Address
                 </button>
