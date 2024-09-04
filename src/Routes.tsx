@@ -427,8 +427,8 @@ export default class RouteApp extends React.Component<Props, AppState> {
   createNewAddress = async (type: AddressType, optionalPath: string) => {
     this.openPasswordAndUnlockIfNeeded(async () => {
       // Create a new address
-      const newaddress = RPC.createNewAddress(type, optionalPath);
-      console.log(`Created new Address ${newaddress}`);
+      const [newaddress, path] = RPC.createNewAddress(type, optionalPath);
+      console.log(`Created new Address ${newaddress} with path ${path}`);
 
       // And then fetch the list of addresses again to refresh (totalBalance gets all addresses)
       this.rpc.fetchTotalBalance();
@@ -438,6 +438,7 @@ export default class RouteApp extends React.Component<Props, AppState> {
 
       const newReceivePageState = new ReceivePageState();
       newReceivePageState.newAddress = newaddress;
+      newReceivePageState.path = path;
       newReceivePageState.rerenderKey = newRerenderKey;
 
       this.setState({ receivePageState: newReceivePageState });

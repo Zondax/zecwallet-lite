@@ -16,6 +16,7 @@ import { AddressBalance, Info, ReceivePageState, AddressBookEntry, AddressDetail
 import ScrollPane from "./ScrollPane";
 import { ErrorModalData } from "./ErrorModal";
 import { getModalConfigByWalletType } from "../utils/modalConfigs";
+import CustomPath from "./CustomPath";
 
 const { shell, clipboard } = window.require("electron");
 
@@ -186,7 +187,19 @@ type Props = {
   openErrorModal: (title: string, body: string | JSX.Element, customConfigs: ErrorModalData) => void
 };
 
-export default class Receive extends Component<Props> {
+type State = {
+  customPath: string
+}
+
+export default class Receive extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      customPath: ''
+    }
+  }
+
   render() {
     const {
       addresses,
@@ -323,17 +336,27 @@ export default class Receive extends Component<Props> {
                   ))}
                 </Accordion>
 
-                <button
-                  className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
-                  onClick={() => {
-                    const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
-                    const configs = getModalConfigByWalletType(walletType, () => createNewAddress(AddressType.sapling, ""))
-                    this.props.openErrorModal("Creating new address", description, configs)
-                  }}
-                  type="button"
-                >
-                  New Sapling Address
-                </button>
+                <div className={[cstyles.flex, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}>
+                  <button
+                    className={[cstyles.primarybutton].join(" ")}
+                    onClick={() => {
+                      const description = walletType === "ledger" ? "Please, review and accept the request on your device. It can take several seconds to complete the whole process." : "Please wait..."
+                      const configs = getModalConfigByWalletType(walletType, () => {
+                        createNewAddress(AddressType.sapling, this.state.customPath)
+                        this.setState({customPath: ""})
+                      })
+                      this.props.openErrorModal("Creating new address", description, configs)
+                    }}
+                    type="button"
+                  >
+                    New Sapling Address
+                  </button>
+                  <CustomPath
+                    value={this.state.customPath}
+                    setValue={(customPath: string) => this.setState({customPath})}
+                    placeholder="32'/133'/xx'"
+                  />
+                </div>
               </ScrollPane>
             </TabPanel>
 
@@ -356,13 +379,23 @@ export default class Receive extends Component<Props> {
                   ))}
                 </Accordion>
 
-                <button
-                  className={[cstyles.primarybutton, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}
-                  type="button"
-                  onClick={() => createNewAddress(AddressType.transparent, "")}
-                >
-                  New Transparent Address
-                </button>
+                <div className={[cstyles.flex, cstyles.margintoplarge, cstyles.marginbottomlarge].join(" ")}>
+                  <button
+                    className={[cstyles.primarybutton].join(" ")}
+                    type="button"
+                    onClick={() => {
+                      createNewAddress(AddressType.transparent, this.state.customPath)
+                      this.setState({customPath: ""})
+                    }}
+                  >
+                    New Transparent Address
+                  </button>
+                  <CustomPath
+                    value={this.state.customPath}
+                    setValue={(customPath: string) => this.setState({customPath})}
+                    placeholder="44'/133'/xx'/xx/xx"
+                  />
+                </div>
               </ScrollPane>
             </TabPanel>
           </Tabs>

@@ -381,9 +381,9 @@ export default class RPC {
       (/* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t") + " " + optionalPath,
 
     );
-    const addrJSON = JSON.parse(addrStr);
+    const [addr, path] = JSON.parse(addrStr);
 
-    return addrJSON[0];
+    return [addr, path];
   }
 
   static fetchSeed(): string {
