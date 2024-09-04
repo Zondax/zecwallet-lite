@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { ChangeEvent } from 'react';
 import cstyles from "./Common.module.css";
 
 interface TextBoxProps {
@@ -18,7 +18,7 @@ const CustomPath: ({value, setValue, placeholder}: TextBoxProps) => JSX.Element 
         type="text"
         value={value}
         onChange={handleChange}
-        placeholder={placeholder}
+        placeholder={`optional derivation path (${placeholder})`}
       />
   );
 }
