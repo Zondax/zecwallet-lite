@@ -137,12 +137,16 @@ export class ReceivePageState {
   // A newly created address to show by default
   newAddress: string;
 
+  // Path for the current address
+  path: string;
+
   // The key used for the receive page component.
   // Increment to force re-render
   rerenderKey: number;
 
   constructor() {
     this.newAddress = "";
+    this.path = "";
     this.rerenderKey = 0;
   }
 }

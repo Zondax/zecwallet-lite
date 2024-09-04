@@ -3453,7 +3453,7 @@ dependencies = [
 [[package]]
 name = "zecwalletlitelib"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/zecwallet-light-cli?tag=v1.9.1-ledger#e7e72111fb5ea5902f7fedd95b1ed45488cfde0d"
+source = "git+https://github.com/Zondax/zecwallet-light-cli?tag=v1.9.2-ledger#bba1fc24410681cfe892ea7f9ebaa513e1f646b4"
 dependencies = [
  "arr_macro",
  "async-trait",

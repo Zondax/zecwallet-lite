@@ -375,14 +375,15 @@ export default class RPC {
     return privKeyJSON[0].viewing_key;
   }
 
-  static createNewAddress(type: AddressType) {
+  static createNewAddress(type: AddressType, optionalPath: string) {
     const addrStr = native.litelib_execute(
       "new",
-      /* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t"
-    );
-    const addrJSON = JSON.parse(addrStr);
+      (/* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t") + " " + optionalPath,
 
-    return addrJSON[0];
+    );
+    const [addr, path] = JSON.parse(addrStr);
+
+    return [addr, path];
   }
 
   static fetchSeed(): string {
