@@ -42,7 +42,7 @@ const AddressBlock = ({
   fetchAndSetSingleViewKey,
   walletType,
 }: AddressBlockProps) => {
-  const { address } = addressBalance;
+  const { address, path } = addressBalance;
 
   const [copied, setCopied] = useState(false);
   const [timerID, setTimerID] = useState<NodeJS.Timeout | null>(null);
@@ -68,7 +68,7 @@ const AddressBlock = ({
   return (
     <AccordionItem key={copied ? 1 : 0} className={[cstyles.well, styles.receiveblock].join(" ")} uuid={address}>
       <AccordionItemHeading>
-        <AccordionItemButton className={cstyles.accordionHeader}>{address}</AccordionItemButton>
+        <AccordionItemButton className={cstyles.accordionHeader}>{`${address} ${!!path ? `(${path})` : ""}`}</AccordionItemButton>
       </AccordionItemHeading>
       <AccordionItemPanel className={[styles.receiveDetail].join(" ")}>
         <div className={[cstyles.flexspacebetween].join(" ")}>
@@ -240,7 +240,7 @@ export default class Receive extends Component<Props, State> {
     const zaddrs = addresses
       .filter((a) => Utils.isSapling(a.address))
       .slice(0, 100)
-      .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0));
+      .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0, a.path));
 
     let defaultZaddr = zaddrs.length ? zaddrs[0].address : "";
     if (receivePageState && Utils.isSapling(receivePageState.newAddress)) {
@@ -256,7 +256,7 @@ export default class Receive extends Component<Props, State> {
     const taddrs = addresses
       .filter((a) => Utils.isTransparent(a.address))
       .slice(0, 100)
-      .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0));
+      .map((a) => new AddressBalance(a.address, addressMap.get(a.address) || 0, a.path));
 
     let defaultTaddr = taddrs.length ? taddrs[0].address : "";
     if (receivePageState && Utils.isTransparent(receivePageState.newAddress)) {

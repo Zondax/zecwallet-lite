@@ -44,14 +44,16 @@ export class TotalBalance {
 
 export class AddressBalance {
   address: string;
+  path?: string;
 
   balance: number;
 
   containsPending: boolean;
   label?: string;
 
-  constructor(address: string, balance: number) {
+  constructor(address: string, balance: number, path?:string) {
     this.address = address;
+    this.path = path;
     this.balance = balance;
     this.containsPending = false;
   }
@@ -246,12 +248,14 @@ export class WalletSettings {
 export class AddressDetail {
   address: string;
   type: AddressType;
+  path?: string;
   account?: number;
   diversifier?: number;
 
-  constructor(address: string, type: AddressType, account?: number, diversifier?: number) {
+  constructor(address: string, type: AddressType, path?: string, account?: number, diversifier?: number) {
     this.address = address;
     this.type = type;
+    this.path = path;
     this.account = account;
     this.diversifier = diversifier;
   }

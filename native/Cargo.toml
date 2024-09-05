@@ -15,7 +15,7 @@ default-features = false
 features = ["napi-6"]
 
 [dependencies]
-zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", tag="v1.9.2-ledger" }
+zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", tag="v1.9.3-ledger" }
 #zecwalletlitelib = { path = "../../zecwallet-light-cli/lib" }
 
 [patch.crates-io]
