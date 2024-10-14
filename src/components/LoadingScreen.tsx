@@ -254,7 +254,7 @@ class LoadingScreen extends Component<Props & RouteComponentProps, LoadingScreen
       } else {
         const ss = JSON.parse(syncstatus);
         console.log(ss);
-        // console.log(`Prev SyncID: ${prevSyncId}`);
+        console.log(`Prev SyncID: ${prevSyncId}`);
 
         if (ss.sync_id > prevSyncId && !ss.in_progress) {
           // First, save the wallet so we don't lose the just-synced data
