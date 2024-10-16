@@ -422,8 +422,8 @@ if (isDev) {
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1300,
-    height: 728,
-    minHeight: 500,
+    height: 800,
+    minHeight: 800,
     minWidth: 1100,
     webPreferences: {
       nodeIntegration: true,

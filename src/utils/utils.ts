@@ -3,7 +3,7 @@
 /* eslint-disable no-plusplus */
 export const NO_CONNECTION: string = "Could not connect to zcashd";
 
-export type WalletType = "ledger" | "memory"
+export type WalletType = "ledger" | "memory";
 
 export default class Utils {
   // v1 LightwalletD
@@ -16,8 +16,6 @@ export default class Utils {
   static V3_LIGHTWALLETD: string = "lightwallet.zcash.pre.zondax.net:31067";
 
   static SERVERS = [
-    { name: "Zecwallet (Default)", uri: Utils.V3_LIGHTWALLETD },
-    { name: "Zecwallet (Backup)", uri: Utils.V2_LIGHTWALLETD },
     { name: "ZcashFR (Community)", uri: "https://lightd-main.zcashfr.io:443" },
     { name: "ZCash Infra USA", uri: "https://lwd1.zcash-infra.com:9067" },
     { name: "ZCash Infra HK", uri: "https://lwd2.zcash-infra.com:9067" },
@@ -29,7 +27,7 @@ export default class Utils {
     { name: "ZCash Infra UK", uri: "https://lwd8.zcash-infra.com:9067" },
   ];
 
-  static DEFAULT_SERVER = Utils.SERVERS[4].uri;
+  static DEFAULT_SERVER = Utils.SERVERS[0].uri;
 
   static MAX_SEND_PAGES_ON_LEDGER_HD: number = 5;
 

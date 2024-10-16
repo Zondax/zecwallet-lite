@@ -320,7 +320,7 @@ export default class RPC {
     const zaddresses = balanceJSON.z_addresses
       .map((o: any) => {
         // If this has any unconfirmed txns, show that in the UI
-        const ab = new AddressBalance(o.address, o.zbalance / 10 ** 8);
+        const ab = new AddressBalance(o.address, o.zbalance / 10 ** 8, o.path);
         if (pendingAddressBalances.has(ab.address)) {
           ab.containsPending = true;
         }
@@ -331,7 +331,7 @@ export default class RPC {
     const taddresses = balanceJSON.t_addresses
       .map((o: any) => {
         // If this has any unconfirmed txns, show that in the UI
-        const ab = new AddressBalance(o.address, o.balance / 10 ** 8);
+        const ab = new AddressBalance(o.address, o.balance / 10 ** 8, o.path);
         if (pendingAddressBalances.has(ab.address)) {
           ab.containsPending = true;
         }
@@ -345,12 +345,13 @@ export default class RPC {
 
     // Also set all addresses
     // const allOAddresses = balanceJSON.ua_addresses.map((o: any) => new AddressDetail(o.address, AddressType.unified));
-    const allZAddresses = balanceJSON.z_addresses.map((o: any) => new AddressDetail(o.address, AddressType.sapling));
+    const allZAddresses = balanceJSON.z_addresses.map((o: any) => new AddressDetail(o.address, AddressType.sapling, o.path));
     const allTAddresses = balanceJSON.t_addresses.map(
-      (o: any) => new AddressDetail(o.address, AddressType.transparent)
+      (o: any) => new AddressDetail(o.address, AddressType.transparent, o.path)
     );
     const allAddresses = [/* allOAddresses, */ allZAddresses, allTAddresses].flat();
 
+    console.log("allAddresses " + JSON.stringify(allAddresses))
     this.fnSetAllAddresses(allAddresses);
   }
 
@@ -375,14 +376,15 @@ export default class RPC {
     return privKeyJSON[0].viewing_key;
   }
 
-  static createNewAddress(type: AddressType) {
+  static createNewAddress(type: AddressType, optionalPath: string) {
     const addrStr = native.litelib_execute(
       "new",
-      /* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t"
-    );
-    const addrJSON = JSON.parse(addrStr);
+      (/* type === AddressType.unified ? "u" : */type === AddressType.sapling ? "z" : "t") + " " + optionalPath,
 
-    return addrJSON[0];
+    );
+    const [addr, path] = JSON.parse(addrStr);
+
+    return [addr, path];
   }
 
   static fetchSeed(): string {
