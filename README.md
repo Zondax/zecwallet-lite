@@ -36,6 +36,8 @@ You need to have the following software installed before you can build Zecwallet
 - [Rust v1.40+](https://www.rust-lang.org/tools/install)
   - Using [RustUp](https://rustup.rs)
 - [Yarn Package Manager](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
+- cmake
+- libudev
 
 #### Install NodeJS using NVM
 
@@ -59,6 +61,19 @@ npm install --global yarn
 
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+#### Install remaining deps
+
+```bash
+# Install from apt
+apt install -y cmake libudev-dev
+
+# Add missing env var
+# Taken from https://unix.stackexchange.com/questions/715215/unable-to-find-libudev-pc
+echo 'export PKG_CONFIG_PATH="/usr/lib/x86_64-linux-gnu/pkgconfig/"' >> $HOME/.bashrc
+
+# Restart terminal
 ```
 
 ### Build
