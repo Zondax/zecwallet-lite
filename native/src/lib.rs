@@ -240,7 +240,7 @@ fn litelib_execute(mut cx: FunctionContext) -> JsResult<JsString> {
                 let args = if args_list.is_empty() {
                     vec![]
                 } else {
-                    vec![&args_list[..]]
+                    args_list.split(" ").into_iter().collect()
                 };
                 commands::do_user_command(&cmd, &args, lightclient.as_ref());
             });
@@ -250,7 +250,7 @@ fn litelib_execute(mut cx: FunctionContext) -> JsResult<JsString> {
             let args = if args_list.is_empty() {
                 vec![]
             } else {
-                vec![&args_list[..]]
+                args_list.split(" ").into_iter().collect()
             };
             commands::do_user_command(&cmd, &args, lightclient.as_ref()).clone()
         }

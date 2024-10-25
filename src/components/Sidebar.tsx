@@ -287,10 +287,16 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
   // Handle menu items
   setupMenuHandlers = async () => {
-    const { clearTimers, setSendTo, setInfo, setRescanning, history, openErrorModal, openPasswordAndUnlockIfNeeded } = this.props;
+    //console.log("setupMenuHandlers");
+
+    // remove possible previous rescan handler to avoid possible duplication
+    ipcRenderer.removeAllListeners("rescan");
+
+    const { clearTimers, setSendTo, setInfo, setRescanning, history, openErrorModal, openPasswordAndUnlockIfNeeded } =
+      this.props;
 
     // About
-    ipcRenderer.on("about", () => {
+    ipcRenderer.once("about", () => {
       openErrorModal(
         "Zecwallet Lite",
         <div className={cstyles.verticalflex}>
@@ -322,7 +328,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     });
 
     // Donate button
-    ipcRenderer.on("donate", () => {
+    ipcRenderer.once("donate", () => {
       const { info } = this.props;
 
       setSendTo(
@@ -337,7 +343,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     });
 
     // Import a Private Key
-    ipcRenderer.on("import", () => {
+    ipcRenderer.once("import", () => {
       if(!this.checkWalletType()) return;
 
       this.openImportPrivKeyModal(null);
@@ -345,12 +351,12 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // Pay URI
-    ipcRenderer.on("payuri", (event: any, uri: string) => {
+    ipcRenderer.once("payuri", (event: any, uri: string) => {
       this.openURIModal(uri);
     });
 
     // Export Seed
-    ipcRenderer.on("seed", () => {
+    ipcRenderer.once("seed", () => {
       if(!this.checkWalletType()) return;
 
       openPasswordAndUnlockIfNeeded(() => {
@@ -381,7 +387,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // Export All Transactions
-    ipcRenderer.on("exportalltx", async () => {
+    ipcRenderer.once("exportalltx", async () => {
       const save = await remote.dialog.showSaveDialog({
         title: "Save Transactions As CSV",
         defaultPath: "zecwallet_transactions.csv",
@@ -420,7 +426,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     });
 
     // Encrypt wallet
-    ipcRenderer.on("encrypt", async () => {
+    ipcRenderer.once("encrypt", async () => {
       if(!this.checkWalletType()) return;
 
       const {info, lockWallet, encryptWallet, openPassword} = this.props;
@@ -450,7 +456,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
     });
 
     // Remove wallet encryption
-    ipcRenderer.on("decrypt", async () => {
+    ipcRenderer.once("decrypt", async () => {
       if(!this.checkWalletType()) return;
 
       const {info, decryptWallet, openPassword} = this.props;
@@ -482,7 +488,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // Unlock wallet
-    ipcRenderer.on("unlock", () => {
+    ipcRenderer.once("unlock", () => {
       if(!this.checkWalletType()) return;
 
       const {info} = this.props;
@@ -497,10 +503,12 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // Rescan
-    ipcRenderer.on("rescan", () => {
+    ipcRenderer.once("rescan", () => {
       // To rescan, we reset the wallet loading
       // So set info the default, and redirect to the loading screen
       clearTimers();
+
+      console.log("rescanning");
 
       // Grab the previous sync ID.
       const prevSyncId = JSON.parse(RPC.doSyncStatus()).sync_id;
@@ -518,7 +526,7 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // Export all private keys
-    ipcRenderer.on("exportall", async () => {
+    ipcRenderer.once("exportall", async () => {
       if(!this.checkWalletType()) return;
 
       // Get all the addresses and run export key on each of them.
@@ -536,17 +544,17 @@ class Sidebar extends PureComponent<Props & RouteComponentProps, State> {
 
 
     // View zcashd
-    ipcRenderer.on("zcashd", () => {
+    ipcRenderer.once("zcashd", () => {
       history.push(routes.ZCASHD);
     });
 
     // Wallet Settings
-    ipcRenderer.on("walletSettings", () => {
+    ipcRenderer.once("walletSettings", () => {
       this.setState({ walletSettingsModalIsOpen: true });
     });
 
     // Connect mobile app
-    ipcRenderer.on("connectmobile", () => {
+    ipcRenderer.once("connectmobile", () => {
       if(!this.checkWalletType()) return;
       history.push(routes.CONNECTMOBILE);
     });
