@@ -25,7 +25,9 @@ export default class Utils {
     { name: "ZCash Infra USA", uri: "https://lwd6.zcash-infra.com:9067" },
     { name: "ZCash Infra Netherlands", uri: "https://lwd7.zcash-infra.com:9067" },
     { name: "ZCash Infra UK", uri: "https://lwd8.zcash-infra.com:9067" },
+    { name: "ZCash Testnet", uri: "https://testnet.zec.rocks:443" },
   ];
+
 
   static DEFAULT_SERVER = Utils.SERVERS[0].uri;
 
