@@ -15,14 +15,14 @@ default-features = false
 features = ["napi-6"]
 
 [dependencies]
-zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", tag="v1.9.4-ledger" }
+zecwalletlitelib = { git = "https://github.com/Zondax/zecwallet-light-cli", tag="v1.9.5-ledger" }
 #zecwalletlitelib = { path = "../../zecwallet-light-cli/lib" }
 
 [patch.crates-io]
-zcash_address = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
-zcash_primitives = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
-zcash_client_backend = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
-zcash_note_encryption = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
-zcash_encoding = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
-zcash_proofs = { git = "https://github.com/Zondax/librustzcash", rev = "612e0bce1e724211012165e23f7ceb46080c8fdd"}
+zcash_address = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
+zcash_primitives = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
+zcash_client_backend = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
+zcash_note_encryption = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
+zcash_encoding = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
+zcash_proofs = { git = "https://github.com/Zondax/librustzcash", rev = "7b114829d07aa1806c65e55c8b63f89c0cd7080e"}
 orchard = { git = "https://github.com/adityapk00/orchard", rev = "0a960a380f4e9c3472c9260f3df61cd5e50d51b0" }

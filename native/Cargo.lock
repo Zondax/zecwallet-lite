@@ -743,7 +743,7 @@ dependencies = [
 [[package]]
 name = "equihash"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "blake2b_simd",
  "byteorder",
@@ -1313,7 +1313,7 @@ dependencies = [
 [[package]]
 name = "ledger-zcash"
 version = "0.6.0"
-source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=59f393806091c72d42fc6aa0c384873deed09a3f#59f393806091c72d42fc6aa0c384873deed09a3f"
+source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=76325c496b0802ce8b6ebed4572fb8e023c78bec#76325c496b0802ce8b6ebed4572fb8e023c78bec"
 dependencies = [
  "arrayvec",
  "byteorder",
@@ -1670,7 +1670,7 @@ dependencies = [
  "reddsa",
  "serde",
  "subtle",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e)",
 ]
 
 [[package]]
@@ -3302,7 +3302,7 @@ dependencies = [
 [[package]]
 name = "zcash-hsmbuilder"
 version = "0.4.0"
-source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=59f393806091c72d42fc6aa0c384873deed09a3f#59f393806091c72d42fc6aa0c384873deed09a3f"
+source = "git+https://github.com/Zondax/ledger-zcash-rs?rev=76325c496b0802ce8b6ebed4572fb8e023c78bec#76325c496b0802ce8b6ebed4572fb8e023c78bec"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -3326,8 +3326,8 @@ dependencies = [
  "serde_derive",
  "sha2 0.9.9",
  "tokio",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae)",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c)",
  "zcash_primitives",
  "zcash_proofs",
 ]
@@ -3335,7 +3335,7 @@ dependencies = [
 [[package]]
 name = "zcash_client_backend"
 version = "0.5.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "base64 0.13.1",
  "bech32",
@@ -3353,14 +3353,14 @@ dependencies = [
  "rand_core",
  "subtle",
  "time",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c)",
  "zcash_primitives",
 ]
 
 [[package]]
 name = "zcash_encoding"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "byteorder",
  "nonempty",
@@ -3369,7 +3369,7 @@ dependencies = [
 [[package]]
 name = "zcash_note_encryption"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
 dependencies = [
  "chacha20",
  "chacha20poly1305",
@@ -3380,7 +3380,7 @@ dependencies = [
 [[package]]
 name = "zcash_note_encryption"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "chacha20",
  "chacha20poly1305",
@@ -3391,7 +3391,7 @@ dependencies = [
 [[package]]
 name = "zcash_primitives"
 version = "0.6.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "aes",
  "bip0039",
@@ -3421,13 +3421,13 @@ dependencies = [
  "sha2 0.9.9",
  "subtle",
  "zcash_encoding",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c)",
 ]
 
 [[package]]
 name = "zcash_proofs"
 version = "0.6.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae#112eedd27b2e51b9e1b77603a776cd78e738c3ae"
+source = "git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c#ce278848fef35903db46c3dced41658e90bbeb3c"
 dependencies = [
  "bellman",
  "blake2b_simd",
@@ -3453,7 +3453,7 @@ dependencies = [
 [[package]]
 name = "zecwalletlitelib"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/zecwallet-light-cli?tag=v1.9.4-ledger#e63e55fa1a2485a41695c985ecf777f31a625473"
+source = "git+https://github.com/Zondax/zecwallet-light-cli?tag=v1.9.5-ledger#45b96af6eff9082e69c8becc9f77b3c3da9956dd"
 dependencies = [
  "arr_macro",
  "async-trait",
@@ -3500,7 +3500,7 @@ dependencies = [
  "zcash-hsmbuilder",
  "zcash_client_backend",
  "zcash_encoding",
- "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=112eedd27b2e51b9e1b77603a776cd78e738c3ae)",
+ "zcash_note_encryption 0.1.0 (git+https://github.com/Zondax/librustzcash?rev=ce278848fef35903db46c3dced41658e90bbeb3c)",
  "zcash_primitives",
  "zcash_proofs",
  "zx-bip44",
@@ -3544,24 +3544,24 @@ source = "git+https://github.com/adityapk00/orchard?rev=0a960a380f4e9c3472c9260f
 [[patch.unused]]
 name = "zcash_address"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
 
 [[patch.unused]]
 name = "zcash_client_backend"
 version = "0.5.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
 
 [[patch.unused]]
 name = "zcash_encoding"
 version = "0.1.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
 
 [[patch.unused]]
 name = "zcash_primitives"
 version = "0.7.0"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
 
 [[patch.unused]]
 name = "zcash_proofs"
 version = "0.7.1"
-source = "git+https://github.com/Zondax/librustzcash?rev=612e0bce1e724211012165e23f7ceb46080c8fdd#612e0bce1e724211012165e23f7ceb46080c8fdd"
+source = "git+https://github.com/Zondax/librustzcash?rev=7b114829d07aa1806c65e55c8b63f89c0cd7080e#7b114829d07aa1806c65e55c8b63f89c0cd7080e"
