@@ -91,33 +91,53 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: |
           mv dist/zecwallet-lite_${{ steps.get_version.outputs.version }}_amd64.deb dist/Zecwallet_Lite_${{ steps.get_version.outputs.version }}_amd64.deb
-      - name: Upload artifacts-deb
-        uses: actions/upload-artifact@v3
+      - name: Update release-deb
         if: contains(matrix.os, 'ubuntu')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ matrix.os }}
-          path: dist/Zecwallet_Lite_${{ steps.get_version.outputs.version }}_amd64.deb
-      - name: Upload artifacts-AppImage
-        uses: actions/upload-artifact@v3
+          files: |
+            dist/Zecwallet_Lite_${{ steps.get_version.outputs.version }}_amd64.deb
+          draft: false
+          prerelease: false
+      - name: Update release-AppImage
         if: contains(matrix.os, 'ubuntu')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.AppImage
-      - name: Upload artifacts-dmg
-        uses: actions/upload-artifact@v3
+          files: |
+            dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.AppImage
+          draft: false
+          prerelease: false
+      - name: Update release-dmg
         if: contains(matrix.os, 'macos')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.dmg
-      - name: Upload artifacts-zip
-        uses: actions/upload-artifact@v3
+          files: |
+            dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.dmg
+          draft: false
+          prerelease: false
+      - name: Update release-zip
         if: contains(matrix.os, 'windows')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}-win.zip
-      - name: Upload artifacts-msi
-        uses: actions/upload-artifact@v3
+          files: |
+            dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}-win.zip
+          draft: false
+          prerelease: false
+      - name: Update release-msi
         if: contains(matrix.os, 'windows')
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite ${{ steps.get_version.outputs.version }}.msi
+          files: |
+            dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.msi
+          draft: false
+          prerelease: false
