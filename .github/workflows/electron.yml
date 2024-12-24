@@ -1,9 +1,11 @@
 name: Electron CD
 
 on:
-  push:
-    branches:
-      - release
+  release:
+    types:
+      - created
+    tags:
+      - "v[0-9]+(\\.[0-9]+)*"
 
 jobs:
   build:
@@ -40,7 +42,17 @@ jobs:
         run: cmake --version
       - name: Use protoc
         run: protoc --version
-      - name: Install libudev-dev
+      - name: Get latest raw release version number
+        id: get_version_raw
+        uses: battila7/get-version-action@v2
+      - name: Get latest release version number
+        id: get_version
+        uses: bhowell2/github-substring-action@v1
+        with:
+          output_name: version
+          value: ${{ steps.get_version_raw.outputs.version }}
+          index_of_str: "v"
+      - name: Install linux deps
         if: contains(matrix.os, 'ubuntu')
         run: |
           sudo apt-get update
@@ -75,45 +87,37 @@ jobs:
         if: contains(matrix.os, 'windows')
         run: |
           yarn dist:win
-      - name: Version@Linux@Mac
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
-        run: |
-          ./bin/printversion.sh
-      - name: Version@Win
-        if: contains(matrix.os, 'windows')
-        run: |
-          ./bin/printversion.ps1
       - name: Name Packages@Linux
         if: contains(matrix.os, 'ubuntu')
         run: |
-          mv dist/zecwallet-lite_${{ env.VERSION }}_amd64.deb dist/Zecwallet_Lite_${{ env.VERSION }}_amd64.deb
+          mv dist/zecwallet-lite_${{ steps.get_version.outputs.version }}_amd64.deb dist/Zecwallet_Lite_${{ steps.get_version.outputs.version }}_amd64.deb
       - name: Upload artifacts-deb
         uses: actions/upload-artifact@v3
         if: contains(matrix.os, 'ubuntu')
         with:
           name: ${{ matrix.os }}
-          path: dist/Zecwallet_Lite_${{ env.VERSION }}_amd64.deb
+          path: dist/Zecwallet_Lite_${{ steps.get_version.outputs.version }}_amd64.deb
       - name: Upload artifacts-AppImage
         uses: actions/upload-artifact@v3
         if: contains(matrix.os, 'ubuntu')
         with:
           name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ env.VERSION }}.AppImage
+          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.AppImage
       - name: Upload artifacts-dmg
         uses: actions/upload-artifact@v3
         if: contains(matrix.os, 'macos')
         with:
           name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ env.VERSION }}.dmg
+          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}.dmg
       - name: Upload artifacts-zip
         uses: actions/upload-artifact@v3
         if: contains(matrix.os, 'windows')
         with:
           name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite-${{ env.VERSION }}-win.zip
+          path: dist/Zecwallet Lite-${{ steps.get_version.outputs.version }}-win.zip
       - name: Upload artifacts-msi
         uses: actions/upload-artifact@v3
         if: contains(matrix.os, 'windows')
         with:
           name: ${{ matrix.os }}
-          path: dist/Zecwallet Lite ${{ env.VERSION }}.msi
+          path: dist/Zecwallet Lite ${{ steps.get_version.outputs.version }}.msi
